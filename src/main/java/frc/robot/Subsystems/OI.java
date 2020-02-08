@@ -5,11 +5,13 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.Subsystems;
+package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.AimTurret;
 
 public class OI extends SubsystemBase {
 
@@ -18,17 +20,19 @@ public class OI extends SubsystemBase {
   public static double liveY;
   public static double liveZ;
   public static double livePow;
-  public final JoystickButton turretUp = new JoystickButton(m_stick, 6);
-  public final JoystickButton turretDown = new JoystickButton(m_stick, 4);
-  public final JoystickButton turretLeft = new JoystickButton(m_stick, 3);
-  public final JoystickButton turretRight = new JoystickButton(m_stick, 5);
+  // public final JoystickButton turretUp = new JoystickButton(m_stick, 6);
+  // public final JoystickButton turretDown = new JoystickButton(m_stick, 4);
+  // public final JoystickButton turretLeft = new JoystickButton(m_stick, 3);
+  // public final JoystickButton turretRight = new JoystickButton(m_stick, 5);
+  public final JoystickButton turretControlButton = new JoystickButton(m_stick, 2);
 
   /**
    * Creates a new OI.
    */
   public OI() {
-
+    turretControlButton.whileHeld((Command) new AimTurret());
   }
+
 
   public void get(){
     liveX = m_stick.getX();

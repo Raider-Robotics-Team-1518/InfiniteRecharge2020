@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.Subsystems;
+package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
@@ -14,20 +14,25 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import frc.robot.components.LimeLight;
+
 public class Turret extends SubsystemBase {
 
   // Turret Aiming System
-  public static WPI_TalonSRX turretPivot = new WPI_TalonSRX(8);
-  public static CANSparkMax turretElevate = new CANSparkMax(13, MotorType.kBrushless);
+  public WPI_TalonSRX turretPivot = new WPI_TalonSRX(5);
+  public CANSparkMax turretElevate = new CANSparkMax(13, MotorType.kBrushless);
   private final double kMaxPivotPower = .75;
   private final double kMaxElevatePower = .5;
+  private final Double minHorizontalAngle = 2.0;
 
   // Turret Firing System
   public static CANSparkMax thrower1 = new CANSparkMax(11, MotorType.kBrushless);
   public static CANSparkMax thrower2 = new CANSparkMax(12, MotorType.kBrushless);
-  public static SpeedControllerGroup thrower = new SpeedControllerGroup(thrower1, thrower2);
+  public SpeedControllerGroup thrower = new SpeedControllerGroup(thrower1, thrower2);
   private final double kMaxThrowerPower = .75;
 
+  private LimeLight lime = new LimeLight();
+  private boolean isInTrackingMode = false;
 
   public Turret() {
   
@@ -38,6 +43,7 @@ public class Turret extends SubsystemBase {
     thrower.set(0);
     turretPivot.set(0);
     turretElevate.set(0);
+    lime.init("limelight-turret");
   }
 
   @Override
@@ -45,4 +51,28 @@ public class Turret extends SubsystemBase {
     // Add code here to update driver station with turret info (bearing and elevation)
 
   }
+
+  public void enableTrackingMode() {
+    isInTrackingMode = true;
+  }
+  public void disableTrackingMode() {
+    isInTrackingMode = false;
+  }
+
+  public void lockOnTarget() {
+    if (isInTrackingMode) {
+      Double horizontalOffset = lime.getTargetOffsetHorizontal();
+      // Double verticalOffset = lime.getTargetOffsetVertical();
+      double newZ = 0;
+      if (Math.abs(horizontalOffset) > minHorizontalAngle) {
+        newZ = kMaxPivotPower * (int) Math.signum(horizontalOffset) + Math.sin(horizontalOffset * Math.PI / 180);
+      }
+      System.out.println("horizontalOffset: " + horizontalOffset.toString());
+      System.out.println("minHorizontalAngle: " + minHorizontalAngle.toString());
+      turretPivot.set(newZ);
+    }
+
+  }
+
+
 }

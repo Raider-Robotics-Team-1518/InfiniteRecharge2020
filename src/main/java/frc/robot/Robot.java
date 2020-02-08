@@ -11,10 +11,13 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Subsystems.ColorWheel;
-import frc.robot.Subsystems.DriveTrain;
-import frc.robot.Subsystems.OI;
-import frc.robot.Subsystems.Turret;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.ColorWheel;
+import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.OI;
+import frc.robot.subsystems.Turret;
+import frc.robot.commands.AimTurret;
+import frc.robot.commands.AutonomousTest;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -26,13 +29,14 @@ import frc.robot.Subsystems.Turret;
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  // private String m_autoSelected;
+  // private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private static String gameData = "";
-  private DriveTrain m_driveTrain = new DriveTrain();
+  public static DriveTrain m_driveTrain = new DriveTrain();
   private OI m_oi = new OI();
-  private Turret m_turret = new Turret();
+  public static Turret m_turret = new Turret();
   private ColorWheel m_colorWheel = new ColorWheel();
+  CommandBase at;
 
   /**
    * This function is run when the robot is first started up and should be
@@ -40,9 +44,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
+    // m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
+    // m_chooser.addOption("My Auto", kCustomAuto);
+    // SmartDashboard.putData("Auto choices", m_chooser);
     m_turret.init();
   }
 
@@ -71,9 +75,15 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
+    m_driveTrain.resetAllEncoders();
+    m_driveTrain.resetGyro();
+    // m_autoSelected = m_chooser.getSelected();
+    // System.out.println("Auto selected: " + m_autoSelected);
+    at = (CommandBase) new AutonomousTest();
+    at.initialize();
+    at.execute();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
+    
   }
 
   /**
@@ -81,15 +91,20 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
-    }
+  //   switch (m_autoSelected) {
+  //     case kCustomAuto:
+  //       // Put custom auto code here
+  //       break;
+  //     case kDefaultAuto:
+  //     default:
+  //       // Put default auto code here
+  //       break;
+  //   }
+    //SmartDashboard.putNumber("mFrontAvg", at.autosystem.a_drive.getFrontAverage());
+    //SmartDashboard.putNumber("mLeftAvg", at.autosystem.a_drive.getLeftStrafeAverage());
+    //SmartDashboard.putNumber("mRightAvg", at.autosystem.a_drive.getRightStrafeAverage());
+    //SmartDashboard.putNumber("mRearAvg", at.autosystem.a_drive.getRearAverage());
+  
   }
 
   /**
@@ -98,13 +113,13 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    m_driveTrain.driveByStick(Math.pow(m_oi.m_stick.getX(), 3), Math.pow(-m_oi.m_stick.getY(), 3), m_oi.m_stick.getZ()*.75);
+    m_driveTrain.drive(Math.pow(m_oi.m_stick.getX(), 3), Math.pow(-m_oi.m_stick.getY(), 3), m_oi.m_stick.getZ()*.75);
 
     // For testing the thrower
     //thrower.set(m_oi.m_stick.getThrottle());
 
     // For testing the turret ring (lazy susan)
-    //turretPivot.set(m_oi.m_stick.getThrottle());
+    // m_turret.turretPivot.set(m_oi.m_stick.getThrottle());
 
     // Send color data to dashboard
     SmartDashboard.putNumber("xRed", m_colorWheel.detectedColor.red);
@@ -140,6 +155,13 @@ public class Robot extends TimedRobot {
     } else {
       //Code for no data received yet
     }
+  }
+
+  @Override
+  public void disabledInit() {
+    // TODO Auto-generated method stub
+    super.disabledInit();
+    m_driveTrain.setCoastMode();
   }
 
   /**

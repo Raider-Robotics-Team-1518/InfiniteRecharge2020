@@ -5,11 +5,12 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.Subsystems;
+package frc.robot.subsystems;
 
-import java.lang.module.ModuleDescriptor.Requires;
+import frc.robot.Robot;
 
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
@@ -18,8 +19,6 @@ public class Autonomous extends SubsystemBase {
  * @author USX27182
  *
  */
-  Requires Robot; //.m_drive;
-
 	double circumferenceInInches = 25.0;
 	int pulsesPerRotation = 21934;
 	double distanceToTravel = 0;
@@ -29,9 +28,11 @@ public class Autonomous extends SubsystemBase {
 	double targetPulseCount = 0;
 	double targetPosition = 0;
 	double drivePower = 0;
-	double AUTO_DRIVE_POWER = 0.5;
+	double AUTO_MAX_Y = 0.15;  // Maximum power for strafe
+	double AUTO_MAX_X = 0.15;  // Maximum power for forward/back
+	double AUTO_MAX_Z = 0.25;  // Maximum power to rotate
 
-  private DriveTrain a_drive = new DriveTrain();
+  	private DriveTrain a_drive = Robot.m_driveTrain;
 	
 	public Autonomous() {
   
@@ -40,11 +41,14 @@ public class Autonomous extends SubsystemBase {
 	
     protected boolean hasDrivenFarEnough(double startPos, double distance) {
 		//currentPosition = ((Robot.rm.lift.getSensorCollection().getQuadraturePosition() + Robot.rm.climb.getSensorCollection().getQuadraturePosition()) / 2) ;
-		currentPosition = ((a_drive.leftFrontEncoder + a_drive.rightRearEncoder) / 2) ;
+		currentPosition = (a_drive.getFrontAverage());
 		targetPulseCount = (distance / circumferenceInInches) * pulsesPerRotation ;
 		targetPosition = startPos + targetPulseCount;
-		//System.out.println("Current Position: " + String.valueOf(currentPosition));
-		//System.out.println("Target Position: " + String.valueOf(targetPulseCount));
+		SmartDashboard.putNumber("Auto/TargetPulse", targetPulseCount);
+		SmartDashboard.putNumber("Auto/TargetPosition", targetPosition);
+		SmartDashboard.putNumber("Auto/CurrentPosition", currentPosition);
+		// System.out.println("Current Position: " + String.valueOf(currentPosition));
+		// System.out.println("Target Position: " + String.valueOf(targetPulseCount));
 		if (RobotState.isAutonomous() == true) {
 			if (distance > 0) { // Driving FORWARD
 				if (currentPosition >= targetPosition) {
@@ -71,13 +75,14 @@ public class Autonomous extends SubsystemBase {
    
     protected boolean strafeFarEnough(double startPos, double distance) {
     	//currentPosition = ((Robot.rm.lift.getSensorCollection().getQuadraturePosition() + Robot.rm.climb.getSensorCollection().getQuadraturePosition()) / 2) ;
-    	currentPosition = ((Math.abs(a_drive.leftRearEncoder) + Math.abs(a_drive.rightRearEncoder)) / 2);
-		targetPulseCount = distance / circumferenceInInches * pulsesPerRotation *  1.34;		targetPosition = startPos + targetPulseCount;
+    	currentPosition = a_drive.getLeftStrafeAverage();
+		targetPulseCount = distance / circumferenceInInches * pulsesPerRotation *  1.34;		
+		targetPosition = startPos + targetPulseCount;
 		//System.out.println("Current Position: " + String.valueOf(currentPosition));
 		//System.out.println("Target Position: " + String.valueOf(targetPulseCount));
 		if (distance > 0) { // Driving RIGHT
 			//currentPosition = ((Math.abs(Robot.rm.lift.getSensorCollection().getQuadraturePosition() ) + Math.abs(Robot.rm.climb.getSensorCollection().getQuadraturePosition() )) / 2);
-			currentPosition = ((Math.abs(a_drive.leftRearEncoder) + Math.abs(a_drive.rightRearEncoder)) / 2);
+			currentPosition = a_drive.getLeftStrafeAverage();
 			if (currentPosition >= targetPosition) {
 				return true;
 			}
@@ -87,7 +92,7 @@ public class Autonomous extends SubsystemBase {
 		}
 		else { // Driving LEFT
 			//currentPosition = -((Math.abs(Robot.rm.lift.getSensorCollection().getQuadraturePosition() ) + Math.abs(Robot.rm.climb.getSensorCollection().getQuadraturePosition() )) / 2);
-			currentPosition = - ((Math.abs(a_drive.leftRearEncoder) + Math.abs(a_drive.rightRearEncoder)) / 2);
+			currentPosition = - a_drive.getLeftStrafeAverage();
 			if (currentPosition <= targetPosition) {
 				return true;
 			}
@@ -100,26 +105,26 @@ public class Autonomous extends SubsystemBase {
     protected boolean gyroTurn(double targetAngle) {
 		a_drive.rioGyro.reset();
 		while ((RobotState.isAutonomous() == true) && (Math.abs(readGyro()) < Math.abs(targetAngle)) && (Math.abs(calcP(targetAngle)) > 0.25)) {
-			a_drive.driveByStick(0, 0, calcP(targetAngle));//(0, calcP(targetAngle));
+			a_drive.drive(0, 0, calcP(targetAngle));//(0, calcP(targetAngle));
 		}
 		stop();	
 		return true;
 	}
     
 	protected boolean gyroDrive(double distance) {
-    a_drive.rioGyro.reset();
-    a_drive.resetLeftRearEncoder();
-    a_drive.resetRightRearEncoder();
-		startPosition = ((a_drive.leftRearEncoder + a_drive.rightRearEncoder) / 2) ;
+		a_drive.rioGyro.reset();
+		a_drive.resetAllEncoders();
+		startPosition = a_drive.getFrontAverage();
 		//double targetPosition = (distance / circumferenceInInches * pulsesPerRotation);
 		while (hasDrivenFarEnough(startPosition, distance) == false) {
-			double drift = readGyro() / 10;
+			double drift = readGyro() / 100;
+			drift = Math.min(drift, 0.1);
 			if (distance > 0) {
-				a_drive.driveByStick(0, AUTO_DRIVE_POWER, -drift);  // FORWARD
+				a_drive.drive(0, AUTO_MAX_X, -drift);  // FORWARD
 			}
 			
 			else {
-				a_drive.driveByStick(0, -AUTO_DRIVE_POWER, -drift);  // REVERSE
+				a_drive.drive(0, -AUTO_MAX_X, -drift);  // REVERSE
 			}
 			
 			//System.out.println("Gyro Heading: " + drift);
@@ -131,18 +136,18 @@ public class Autonomous extends SubsystemBase {
 	
 	protected boolean strafeDrive(double distance) {
 		a_drive.rioGyro.reset();
-    a_drive.resetLeftRearEncoder();
-    a_drive.resetRightRearEncoder();
+	    a_drive.resetAllEncoders();
 		//startPosition = ((Robot.rm.lift.getSensorCollection().getQuadraturePosition() + Robot.rm.climb.getSensorCollection().getQuadraturePosition()) / 2) ;
-		startPosition = ((a_drive.leftRearEncoder + a_drive.rightRearEncoder) / 2);
+		startPosition = a_drive.getLeftStrafeAverage();
 		while (strafeFarEnough(startPosition, distance) == false) {
-			double drift = readGyro() / 10;
+			double drift = readGyro() / 100;
+			drift = Math.min(drift, 0.1);
 			if (distance > 0) {
-				a_drive.driveByStick(0.65, 0, -drift);  // RIGHT
+				a_drive.drive(AUTO_MAX_Y, 0, -drift);  // RIGHT
 			}
 			
 			else {
-				a_drive.driveByStick(-0.65, 0, -drift);  // LEFT
+				a_drive.drive(-AUTO_MAX_Y, 0, -drift);  // LEFT
 			}
 			
 			//System.out.println("Gyro Heading: " + drift);
@@ -273,7 +278,7 @@ public class Autonomous extends SubsystemBase {
 	}
 	
 	protected double calcP(double tAngle) {
-		double p = 1 * ((1-(Math.abs(readGyro()) / Math.abs(tAngle))) - 0.05);	
+		double p = AUTO_MAX_Z * ((1-(Math.abs(readGyro()) / Math.abs(tAngle))) - 0.05);	
 		if (tAngle > 0) {
 			return p;
 		}
@@ -286,7 +291,7 @@ public class Autonomous extends SubsystemBase {
 	
 	public void stop() {
 
-		a_drive.driveByStick(0, 0, 0);
+		a_drive.drive(0, 0, 0);
     	//taskDone = true;
     	
     }
