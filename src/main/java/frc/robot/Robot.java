@@ -12,11 +12,12 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.ColorWheel;
 import frc.robot.subsystems.DriveTrain;
-import frc.robot.subsystems.OI;
 import frc.robot.subsystems.Turret;
 import frc.robot.commands.AimTurret;
+import frc.robot.OI;
 import frc.robot.commands.AutonomousTest;
 
 /**
@@ -33,7 +34,8 @@ public class Robot extends TimedRobot {
   // private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private static String gameData = "";
   public static DriveTrain m_driveTrain = new DriveTrain();
-  private OI m_oi = new OI();
+  private OI m_oi;
+  // private AimTurret m_aTurret = new AimTurret();
   public static Turret m_turret = new Turret();
   private ColorWheel m_colorWheel = new ColorWheel();
   CommandBase at;
@@ -44,9 +46,11 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    super.robotInit();
     // m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     // m_chooser.addOption("My Auto", kCustomAuto);
     // SmartDashboard.putData("Auto choices", m_chooser);
+    m_oi = new OI();
     m_turret.init();
   }
 
@@ -60,6 +64,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    CommandScheduler.getInstance().run();
   }
 
   /**
@@ -121,11 +126,13 @@ public class Robot extends TimedRobot {
     // For testing the turret ring (lazy susan)
     // m_turret.turretPivot.set(m_oi.m_stick.getThrottle());
 
+    
+
     // Send color data to dashboard
     SmartDashboard.putNumber("xRed", m_colorWheel.detectedColor.red);
     SmartDashboard.putNumber("xGreen", m_colorWheel.detectedColor.green);
     SmartDashboard.putNumber("xBlue", m_colorWheel.detectedColor.blue);
-
+    // m_aTurret.execute();  we found a loophole to check if this was working
 
     gameData = DriverStation.getInstance().getGameSpecificMessage();
     if(gameData.length() > 0)

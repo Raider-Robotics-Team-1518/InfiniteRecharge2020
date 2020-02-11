@@ -21,9 +21,10 @@ public class Turret extends SubsystemBase {
   // Turret Aiming System
   public WPI_TalonSRX turretPivot = new WPI_TalonSRX(5);
   public CANSparkMax turretElevate = new CANSparkMax(13, MotorType.kBrushless);
-  private final double kMaxPivotPower = .75;
+  private final double kMinPivotPower = .1;
   private final double kMaxElevatePower = .5;
-  private final Double minHorizontalAngle = 2.0;
+  private final Double minHorizontalAngle = 3.5;
+  private final double kMaxTurretPower = .5;
 
   // Turret Firing System
   public static CANSparkMax thrower1 = new CANSparkMax(11, MotorType.kBrushless);
@@ -39,6 +40,7 @@ public class Turret extends SubsystemBase {
   }
 
   public void init() {
+    
     thrower2.setInverted(true);
     thrower.set(0);
     turretPivot.set(0);
@@ -57,6 +59,19 @@ public class Turret extends SubsystemBase {
   }
   public void disableTrackingMode() {
     isInTrackingMode = false;
+    turretPivot.set(0);
+  }
+
+  public void lookLeft(){
+    turretPivot.set(kMaxTurretPower);
+  }
+
+  public void lookRight(){
+    turretPivot.set(-kMaxTurretPower);
+  }
+
+  public void stopTurret() {
+    turretPivot.set(0);
   }
 
   public void lockOnTarget() {
@@ -65,14 +80,15 @@ public class Turret extends SubsystemBase {
       // Double verticalOffset = lime.getTargetOffsetVertical();
       double newZ = 0;
       if (Math.abs(horizontalOffset) > minHorizontalAngle) {
-        newZ = kMaxPivotPower * (int) Math.signum(horizontalOffset) + Math.sin(horizontalOffset * Math.PI / 180);
+        newZ = kMinPivotPower * (int) Math.signum(horizontalOffset) + Math.tan(horizontalOffset * Math.PI / 180);
       }
       System.out.println("horizontalOffset: " + horizontalOffset.toString());
       System.out.println("minHorizontalAngle: " + minHorizontalAngle.toString());
-      turretPivot.set(newZ);
+      turretPivot.set(-newZ);
     }
 
   }
+
 
 
 }

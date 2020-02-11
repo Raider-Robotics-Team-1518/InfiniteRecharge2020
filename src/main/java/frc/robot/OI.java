@@ -5,17 +5,18 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.subsystems;
+package frc.robot;
+import frc.robot.commands.*;
+
 
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.buttons.JoystickButton;
-import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.commands.AimTurret;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 
 public class OI extends SubsystemBase {
 
-  public final Joystick m_stick = new Joystick(0);
+  public final Joystick m_stick;
   public static double liveX;
   public static double liveY;
   public static double liveZ;
@@ -24,15 +25,18 @@ public class OI extends SubsystemBase {
   // public final JoystickButton turretDown = new JoystickButton(m_stick, 4);
   // public final JoystickButton turretLeft = new JoystickButton(m_stick, 3);
   // public final JoystickButton turretRight = new JoystickButton(m_stick, 5);
-  public final JoystickButton turretControlButton = new JoystickButton(m_stick, 2);
+  public final JoystickButton turretControlButton;
+  
 
   /**
    * Creates a new OI.
    */
   public OI() {
-    turretControlButton.whileHeld((Command) new AimTurret());
+    System.out.println("OI is being loaded");
+    m_stick = new Joystick(0);
+    turretControlButton = new JoystickButton(m_stick, 2);
+    turretControlButton.whileHeld(new AimTurret());
   }
-
 
   public void get(){
     liveX = m_stick.getX();
@@ -45,5 +49,14 @@ public class OI extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    if(m_stick.getPOV() == 90 ) {
+      Robot.m_turret.lookRight();
+    }
+    else if (m_stick.getPOV() == 270) {
+      Robot.m_turret.lookLeft();
+    }
+    else {
+      Robot.m_turret.stopTurret();
+    }
   }
 }
