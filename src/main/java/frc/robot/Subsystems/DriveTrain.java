@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import edu.wpi.first.wpilibj.Joystick;
+
 public class DriveTrain extends SubsystemBase {
 
   private final WPI_TalonFX leftFront = new WPI_TalonFX(1);
@@ -25,8 +27,13 @@ public class DriveTrain extends SubsystemBase {
   private final MecanumDrive m_drive;
   private final double rampRate = 0.5;
   private final double deadband = 0.1;
+  private final double stickPower = 0.5;
+  private final double rotationPower = 0.35;
 
-  // Encoders on DriveTrain motors
+  private Joystick m_stick;
+  private static final int kJoystickChannel = 0;
+  
+   // Encoders on DriveTrain motors
   public double leftFrontEncoder = 0;
   public double leftRearEncoder = 0;
   public double rightFrontEncoder = 0;
@@ -40,6 +47,9 @@ public class DriveTrain extends SubsystemBase {
   public DriveTrain() {
     rioGyro = new ADXRS450_Gyro();
     m_drive = new MecanumDrive(leftFront, leftRear, rightFront, rightRear);
+
+    m_stick = new Joystick(kJoystickChannel); 
+
     m_drive.setDeadband(deadband);
     resetLeftFrontEncoder();
     resetLeftRearEncoder();
@@ -105,7 +115,15 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public void drive(final double liveX, final double liveY, final double liveZ) {
-       m_drive.driveCartesian(liveX, liveY, liveZ);
+      //  m_drive.driveCartesian(liveX, liveY, liveZ);
+    double stickAngle = m_stick.getDirectionDegrees();
+    double stickPower = m_stick.getMagnitude();
+    double gyroAngle = rioGyro.getAngle() % 360;
+    double driveAngle = stickAngle - gyroAngle;
+    SmartDashboard.putNumber("aGyro", gyroAngle);
+    SmartDashboard.putNumber("aStick:", stickAngle);
+    SmartDashboard.putNumber("aDrive: ", driveAngle);
+    m_drive.drivePolar(Math.pow(stickPower, 3) * stickPower, driveAngle, Math.pow(m_stick.getZ(),3) * rotationPower);
    }
 
   public void updateEncoders(){
@@ -139,6 +157,6 @@ public class DriveTrain extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-
+    
   }
 }

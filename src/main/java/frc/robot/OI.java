@@ -12,7 +12,6 @@ import frc.robot.commands.*;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 
 public class OI extends SubsystemBase {
 
@@ -26,7 +25,10 @@ public class OI extends SubsystemBase {
   // public final JoystickButton turretLeft = new JoystickButton(m_stick, 3);
   // public final JoystickButton turretRight = new JoystickButton(m_stick, 5);
   public final JoystickButton turretControlButton;
-  
+  public final JoystickButton intakePivotOut;
+  public final JoystickButton intakePivotIn;
+  public final JoystickButton climbUpButton;
+  public final JoystickButton climbDownButton;
 
   /**
    * Creates a new OI.
@@ -36,6 +38,11 @@ public class OI extends SubsystemBase {
     m_stick = new Joystick(0);
     turretControlButton = new JoystickButton(m_stick, 2);
     turretControlButton.whileHeld(new AimTurret());
+
+    intakePivotOut = new JoystickButton(m_stick, 5);
+    intakePivotIn = new JoystickButton(m_stick, 6);
+    climbUpButton = new JoystickButton(m_stick, 11);
+    climbDownButton = new JoystickButton(m_stick, 12);
   }
 
   public void get(){

@@ -19,6 +19,7 @@ import frc.robot.subsystems.ColorWheel;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Turret;
 import frc.robot.commands.AimTurret;
+import frc.robot.subsystems.Intake;
 import frc.robot.OI;
 import frc.robot.commands.AutonomousTest;
 import com.revrobotics.ColorSensorV3;
@@ -51,6 +52,7 @@ public class Robot extends TimedRobot {
   private OI m_oi;
   // private AimTurret m_aTurret = new AimTurret();
   public static Turret m_turret = new Turret();
+  private Intake m_intake = new Intake();
   private ColorWheel m_colorWheel;
   CommandBase at;
 
@@ -138,8 +140,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    m_driveTrain.drive(Math.pow(m_oi.m_stick.getX(), 3), Math.pow(-m_oi.m_stick.getY(), 3),
-        Math.pow(m_oi.m_stick.getZ(), 3));
+    // m_driveTrain.drive(Math.pow(m_oi.m_stick.getX(), 3), Math.pow(-m_oi.m_stick.getY(), 3),
+    //     Math.pow(m_oi.m_stick.getZ(), 3));
 
     // For testing the thrower
     // thrower.set(m_oi.m_stick.getThrottle());
@@ -150,6 +152,10 @@ public class Robot extends TimedRobot {
 
     // m_aTurret.execute(); we found a loophole to check if this was working
 
+    m_oi.intakePivotIn.whenPressed(() -> m_intake.pivotIn());
+    m_oi.intakePivotOut.whenPressed(() -> m_intake.pivotOut());
+    m_oi.climbDownButton.whenPressed(() -> m_turret.climbDown()).whenReleased(() -> m_turret.climbStop());
+    m_oi.climbUpButton.whenPressed(() -> m_turret.climbUp()).whenReleased(() -> m_turret.climbStop());
   }
 
   @Override
