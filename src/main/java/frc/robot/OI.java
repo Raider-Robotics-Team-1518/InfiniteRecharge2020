@@ -29,6 +29,7 @@ public class OI extends SubsystemBase {
   public final JoystickButton intakePivotIn;
   public final JoystickButton climbUpButton;
   public final JoystickButton climbDownButton;
+  public final JoystickButton wedgieButton;
 
   /**
    * Creates a new OI.
@@ -41,6 +42,7 @@ public class OI extends SubsystemBase {
 
     intakePivotOut = new JoystickButton(m_stick, 5);
     intakePivotIn = new JoystickButton(m_stick, 6);
+    wedgieButton = new JoystickButton(m_stick, 9);
     climbUpButton = new JoystickButton(m_stick, 11);
     climbDownButton = new JoystickButton(m_stick, 12);
   }

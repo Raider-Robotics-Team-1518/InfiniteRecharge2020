@@ -22,9 +22,11 @@ import frc.robot.commands.AimTurret;
 import frc.robot.subsystems.Intake;
 import frc.robot.OI;
 import frc.robot.commands.AutonomousTest;
+import frc.robot.components.LED;
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.ColorMatchResult;
 import com.revrobotics.ColorMatch;
+import edu.wpi.first.wpilibj.Relay;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -38,15 +40,16 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   // private String m_autoSelected;
   // private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  /* 
-  private final I2C.Port i2cPort = I2C.Port.kOnboard;
-  private final ColorSensorV3 colorSensor = new ColorSensorV3(i2cPort);
-  private final ColorMatch m_colorMatcher = new ColorMatch();
-  private final Color kBlueTarget = ColorMatch.makeColor(0.129, .428, .443);
-  private final Color kGreenTarget = ColorMatch.makeColor(.172, .577, .251);
-  private final Color kRedTarget = ColorMatch.makeColor(.519, .347, .133);
-  private final Color kYellowTarget = ColorMatch.makeColor(.319, .558, .124);  
-  */
+  /*
+   * private final I2C.Port i2cPort = I2C.Port.kOnboard; private final
+   * ColorSensorV3 colorSensor = new ColorSensorV3(i2cPort); private final
+   * ColorMatch m_colorMatcher = new ColorMatch(); private final Color kBlueTarget
+   * = ColorMatch.makeColor(0.129, .428, .443); private final Color kGreenTarget =
+   * ColorMatch.makeColor(.172, .577, .251); private final Color kRedTarget =
+   * ColorMatch.makeColor(.519, .347, .133); private final Color kYellowTarget =
+   * ColorMatch.makeColor(.319, .558, .124);
+   */
+  private static LED m_led = new LED();
   private static String gameData = "";
   public static DriveTrain m_driveTrain = new DriveTrain();
   private OI m_oi;
@@ -54,6 +57,8 @@ public class Robot extends TimedRobot {
   public static Turret m_turret = new Turret();
   private Intake m_intake = new Intake();
   private ColorWheel m_colorWheel;
+  private final Relay m_relay = new Relay(0);
+  private static boolean wedgieIsExtended = false;
   CommandBase at;
 
   /**
@@ -69,6 +74,7 @@ public class Robot extends TimedRobot {
     m_oi = new OI();
     m_turret.init();
     m_colorWheel = new ColorWheel();
+
   }
 
   /**
@@ -83,6 +89,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    m_led.setRainbow();
   }
 
   /**
@@ -107,6 +114,7 @@ public class Robot extends TimedRobot {
     at.initialize();
     at.execute();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    m_led.disableRainbow();
 
   }
 
@@ -134,14 +142,21 @@ public class Robot extends TimedRobot {
 
   }
 
+  @Override
+  public void teleopInit() {
+    m_led.disableRainbow();
+    m_led.setSolidColor(LED.Colors.WHITE);
+  }
+
   /**
    * This function is called periodically during operator control.
    */
   @Override
   public void teleopPeriodic() {
 
-    // m_driveTrain.drive(Math.pow(m_oi.m_stick.getX(), 3), Math.pow(-m_oi.m_stick.getY(), 3),
-    //     Math.pow(m_oi.m_stick.getZ(), 3));
+    // m_driveTrain.drive(Math.pow(m_oi.m_stick.getX(), 3),
+    // Math.pow(-m_oi.m_stick.getY(), 3),
+    // Math.pow(m_oi.m_stick.getZ(), 3));
 
     // For testing the thrower
     // thrower.set(m_oi.m_stick.getThrottle());
@@ -149,13 +164,21 @@ public class Robot extends TimedRobot {
     // For testing the turret ring (lazy susan)
     // m_turret.turretPivot.set(m_oi.m_stick.getThrottle());
 
-
     // m_aTurret.execute(); we found a loophole to check if this was working
 
     m_oi.intakePivotIn.whenPressed(() -> m_intake.pivotIn());
     m_oi.intakePivotOut.whenPressed(() -> m_intake.pivotOut());
     m_oi.climbDownButton.whenPressed(() -> m_turret.climbDown()).whenReleased(() -> m_turret.climbStop());
     m_oi.climbUpButton.whenPressed(() -> m_turret.climbUp()).whenReleased(() -> m_turret.climbStop());
+    m_oi.wedgieButton.whenPressed(() -> {
+      if (wedgieIsExtended) {
+        wedgieIsExtended = false;
+        m_relay.set(Relay.Value.kForward);
+      } else {
+        wedgieIsExtended = true;
+        m_relay.set(Relay.Value.kReverse);
+      }
+    });
   }
 
   @Override
@@ -163,6 +186,7 @@ public class Robot extends TimedRobot {
     // TODO Auto-generated method stub
     super.disabledInit();
     m_driveTrain.setCoastMode();
+    m_led.enableRainbow();
   }
 
   /**
