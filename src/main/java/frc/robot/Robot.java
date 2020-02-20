@@ -74,7 +74,6 @@ public class Robot extends TimedRobot {
     m_oi = new OI();
     m_turret.init();
     m_colorWheel = new ColorWheel();
-
   }
 
   /**
@@ -171,6 +170,7 @@ public class Robot extends TimedRobot {
     m_oi.climbDownButton.whenPressed(() -> m_turret.climbDown()).whenReleased(() -> m_turret.climbStop());
     m_oi.climbUpButton.whenPressed(() -> m_turret.climbUp()).whenReleased(() -> m_turret.climbStop());
     m_oi.wedgieButton.whenPressed(() -> {
+      System.out.println("=============> wedge button pressed");
       if (wedgieIsExtended) {
         wedgieIsExtended = false;
         m_relay.set(Relay.Value.kForward);
@@ -178,7 +178,9 @@ public class Robot extends TimedRobot {
         wedgieIsExtended = true;
         m_relay.set(Relay.Value.kReverse);
       }
+      // m_relay.set(Relay.Value.kOff);
     });
+
   }
 
   @Override
@@ -187,6 +189,7 @@ public class Robot extends TimedRobot {
     super.disabledInit();
     m_driveTrain.setCoastMode();
     m_led.enableRainbow();
+    m_relay.set(Relay.Value.kOff);
   }
 
   /**

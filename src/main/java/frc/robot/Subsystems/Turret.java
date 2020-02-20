@@ -47,7 +47,7 @@ public class Turret extends SubsystemBase {
     thrower.set(0);
     turretPivot.set(0);
     turretElevate.set(0);
-    lime.init("limelight-turret");
+    lime.init("limelight-front");
   }
 
   @Override
