@@ -30,6 +30,9 @@ public class OI extends SubsystemBase {
   public final JoystickButton climbUpButton;
   public final JoystickButton climbDownButton;
   public final JoystickButton wedgieButton;
+  public final JoystickButton testButton;
+  
+  private static boolean wedgieIsExtended = false;
 
   /**
    * Creates a new OI.
@@ -45,6 +48,16 @@ public class OI extends SubsystemBase {
     wedgieButton = new JoystickButton(m_stick, 9);
     climbUpButton = new JoystickButton(m_stick, 11);
     climbDownButton = new JoystickButton(m_stick, 12);
+    testButton = new JoystickButton(m_stick, 10);
+    wedgieButton.whenPressed(() -> {
+    
+      if (wedgieIsExtended) {
+        Wedgie.lockWedgie();
+      } else {
+        Wedgie.unlockWedgie();
+      }
+    }).whenReleased(() -> {wedgieIsExtended = !wedgieIsExtended;} ); 
+
   }
 
   public void get(){
@@ -67,5 +80,6 @@ public class OI extends SubsystemBase {
     else {
       Robot.m_turret.stopTurret();
     }
+   
   }
 }

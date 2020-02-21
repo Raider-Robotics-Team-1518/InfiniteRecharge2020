@@ -22,6 +22,7 @@ import frc.robot.commands.AimTurret;
 import frc.robot.subsystems.Intake;
 import frc.robot.OI;
 import frc.robot.commands.AutonomousTest;
+import frc.robot.commands.Wedgie;
 import frc.robot.components.LED;
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.ColorMatchResult;
@@ -57,7 +58,8 @@ public class Robot extends TimedRobot {
   public static Turret m_turret = new Turret();
   private Intake m_intake = new Intake();
   private ColorWheel m_colorWheel;
-  private final Relay m_relay = new Relay(0);
+  public final static Relay m_relay = new Relay(0);
+
   private static boolean wedgieIsExtended = false;
   CommandBase at;
 
@@ -74,6 +76,7 @@ public class Robot extends TimedRobot {
     m_oi = new OI();
     m_turret.init();
     m_colorWheel = new ColorWheel();
+    m_relay.setDirection(Relay.Direction.kBoth);
   }
 
   /**
@@ -153,9 +156,9 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    // m_driveTrain.drive(Math.pow(m_oi.m_stick.getX(), 3),
-    // Math.pow(-m_oi.m_stick.getY(), 3),
-    // Math.pow(m_oi.m_stick.getZ(), 3));
+    m_driveTrain.drive(Math.pow(m_oi.m_stick.getX(), 3),
+    Math.pow(-m_oi.m_stick.getY(), 3),
+    Math.pow(m_oi.m_stick.getZ(), 3));
 
     // For testing the thrower
     // thrower.set(m_oi.m_stick.getThrottle());
@@ -169,17 +172,8 @@ public class Robot extends TimedRobot {
     m_oi.intakePivotOut.whenPressed(() -> m_intake.pivotOut());
     m_oi.climbDownButton.whenPressed(() -> m_turret.climbDown()).whenReleased(() -> m_turret.climbStop());
     m_oi.climbUpButton.whenPressed(() -> m_turret.climbUp()).whenReleased(() -> m_turret.climbStop());
-    m_oi.wedgieButton.whenPressed(() -> {
-      System.out.println("=============> wedge button pressed");
-      if (wedgieIsExtended) {
-        wedgieIsExtended = false;
-        m_relay.set(Relay.Value.kForward);
-      } else {
-        wedgieIsExtended = true;
-        m_relay.set(Relay.Value.kReverse);
-      }
-      // m_relay.set(Relay.Value.kOff);
-    });
+    m_oi.testButton.whenPressed(() -> m_intake.intakeOn()).whenReleased(() -> m_intake.intakeOff());
+
 
   }
 
@@ -189,7 +183,7 @@ public class Robot extends TimedRobot {
     super.disabledInit();
     m_driveTrain.setCoastMode();
     m_led.enableRainbow();
-    m_relay.set(Relay.Value.kOff);
+    //m_relay.set(Relay.Value.kOff);
   }
 
   /**

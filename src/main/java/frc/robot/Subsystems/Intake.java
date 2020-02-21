@@ -9,15 +9,20 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Intake extends SubsystemBase {
 
-  public static WPI_TalonSRX pivotMotor = new WPI_TalonSRX(8);
+  public static WPI_TalonSRX pivotMotor = new WPI_TalonSRX(8); 
+  public static CANSparkMax intakeMotor = new CANSparkMax(12, MotorType.kBrushless);
   private final double kMaxPivotMotorPower = 0.5;
   private static DigitalInput intakeFullyExtendedSwitch;
   private static DigitalInput intakeFullyRetractedSwitch;
+
 
   /**
    * Creates a new Intake.
@@ -51,5 +56,14 @@ public class Intake extends SubsystemBase {
       pivotMotor.set(0.0);
     }
   }
+
+  public void intakeOn() {
+    intakeMotor.set(-0.6);
+  }
+
+  public void intakeOff() {
+    intakeMotor.set(0);
+  }
+
 
 }
