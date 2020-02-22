@@ -17,17 +17,16 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Intake extends SubsystemBase {
 
-  public static WPI_TalonSRX pivotMotor = new WPI_TalonSRX(8); 
+  public static WPI_TalonSRX pivotMotor = new WPI_TalonSRX(8);
   public static CANSparkMax intakeMotor = new CANSparkMax(12, MotorType.kBrushless);
   private final double kMaxPivotMotorPower = 0.5;
   private static DigitalInput intakeFullyExtendedSwitch;
   private static DigitalInput intakeFullyRetractedSwitch;
 
-
   /**
    * Creates a new Intake.
    */
-   public Intake() {
+  public Intake() {
     intakeFullyExtendedSwitch = new DigitalInput(1);
     intakeFullyRetractedSwitch = new DigitalInput(2);
   }
@@ -64,6 +63,5 @@ public class Intake extends SubsystemBase {
   public void intakeOff() {
     intakeMotor.set(0);
   }
-
 
 }

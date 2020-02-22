@@ -6,9 +6,8 @@
 /*----------------------------------------------------------------------------*/
 
 package frc.robot;
+
 import frc.robot.commands.*;
-
-
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -31,7 +30,7 @@ public class OI extends SubsystemBase {
   public final JoystickButton climbDownButton;
   public final JoystickButton wedgieButton;
   public final JoystickButton testButton;
-  
+
   private static boolean wedgieIsExtended = false;
 
   /**
@@ -50,36 +49,33 @@ public class OI extends SubsystemBase {
     climbDownButton = new JoystickButton(m_stick, 12);
     testButton = new JoystickButton(m_stick, 10);
     wedgieButton.whenPressed(() -> {
-    
       if (wedgieIsExtended) {
         Wedgie.lockWedgie();
       } else {
         Wedgie.unlockWedgie();
       }
-    }).whenReleased(() -> {wedgieIsExtended = !wedgieIsExtended;} ); 
-
+    }).whenReleased(() -> {
+      wedgieIsExtended = !wedgieIsExtended;
+    });
   }
 
-  public void get(){
+  public void get() {
     liveX = m_stick.getX();
     liveY = m_stick.getY();
     liveZ = m_stick.getZ();
     livePow = m_stick.getThrottle();
-    
+
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if(m_stick.getPOV() == 90 ) {
+    if (m_stick.getPOV() == 90) {
       Robot.m_turret.lookRight();
-    }
-    else if (m_stick.getPOV() == 270) {
+    } else if (m_stick.getPOV() == 270) {
       Robot.m_turret.lookLeft();
-    }
-    else {
+    } else {
       Robot.m_turret.stopTurret();
     }
-   
   }
 }

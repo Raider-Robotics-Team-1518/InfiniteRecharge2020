@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 
 public class ColorWheel extends SubsystemBase {
-  
+
   // Color Sensor
   private final I2C.Port i2cPort = I2C.Port.kOnboard;
   private final ColorSensorV3 colorSensor = new ColorSensorV3(i2cPort);
@@ -39,9 +39,9 @@ public class ColorWheel extends SubsystemBase {
   public static WPI_TalonSRX colorWheelArm = new WPI_TalonSRX(6);
   private final double kMaxArmMotorPower = 0.25;
   private final double kMinArmMotorPower = 0.15;
-  
+
   // Pneumatics to lift/lower
-  
+
   public ColorWheel() {
     m_colorMatcher.addColorMatch(kBlueTarget);
     m_colorMatcher.addColorMatch(kGreenTarget);
@@ -53,60 +53,60 @@ public class ColorWheel extends SubsystemBase {
   @Override
   public void periodic() {
     // Update color value from sensor to dashboard
-        // Send color data to dashboard
-        Color detectedColor = colorSensor.getColor();
-        SmartDashboard.putNumber("xRed", detectedColor.red);
-        SmartDashboard.putNumber("xGreen", detectedColor.green);
-        SmartDashboard.putNumber("xBlue", detectedColor.blue);
-        ColorMatchResult match = m_colorMatcher.matchClosestColor(detectedColor);
-    
-        String gameData = DriverStation.getInstance().getGameSpecificMessage();
-        if (gameData.length() > 0) {
-          switch (gameData.charAt(0)) {
-          case 'B':
-            if (match.color != kRedTarget) {
-              // drive spinner motor
-            } else {
-              // stop motor
-              System.out.println("we found blue");
-    
-            }
-            SmartDashboard.putString("FMS Color", "BLUE");
-            break;
-          case 'G':
-          if (match.color != kYellowTarget) {
-              // drive spinner motor
-            } else {
-              // stop motor
-              System.out.println("we found green");
-            }
-            SmartDashboard.putString("FMS Color", "GREEN");
-            break;
-          case 'R':
-            if (match.color != kBlueTarget) {
-              // drive spinner motor
-            } else {
-              // stop motor
-              System.out.println("we found red");
-            }
-            SmartDashboard.putString("FMS Color", "RED");
-            break;
-          case 'Y':
-            if (match.color != kGreenTarget) {
-              // drive spinner motor
-            } else {
-              // stop motor
-              System.out.println("we found yellow");
-            }
-            SmartDashboard.putString("FMS Color", "YELLOW");
-            break;
-          default:
-            // This is corrupt data
-            break;
+    // Send color data to dashboard
+    Color detectedColor = colorSensor.getColor();
+    SmartDashboard.putNumber("xRed", detectedColor.red);
+    SmartDashboard.putNumber("xGreen", detectedColor.green);
+    SmartDashboard.putNumber("xBlue", detectedColor.blue);
+    ColorMatchResult match = m_colorMatcher.matchClosestColor(detectedColor);
+
+    String gameData = DriverStation.getInstance().getGameSpecificMessage();
+    if (gameData.length() > 0) {
+      switch (gameData.charAt(0)) {
+        case 'B':
+          if (match.color != kRedTarget) {
+            // drive spinner motor
+          } else {
+            // stop motor
+            System.out.println("we found blue");
+
           }
-        } else {
-          // Code for no data received yet
-        }
-    
+          SmartDashboard.putString("FMS Color", "BLUE");
+          break;
+        case 'G':
+          if (match.color != kYellowTarget) {
+            // drive spinner motor
+          } else {
+            // stop motor
+            System.out.println("we found green");
+          }
+          SmartDashboard.putString("FMS Color", "GREEN");
+          break;
+        case 'R':
+          if (match.color != kBlueTarget) {
+            // drive spinner motor
+          } else {
+            // stop motor
+            System.out.println("we found red");
+          }
+          SmartDashboard.putString("FMS Color", "RED");
+          break;
+        case 'Y':
+          if (match.color != kGreenTarget) {
+            // drive spinner motor
+          } else {
+            // stop motor
+            System.out.println("we found yellow");
+          }
+          SmartDashboard.putString("FMS Color", "YELLOW");
+          break;
+        default:
+          // This is corrupt data
+          break;
+      }
+    } else {
+      // Code for no data received yet
+    }
+
   }
 }

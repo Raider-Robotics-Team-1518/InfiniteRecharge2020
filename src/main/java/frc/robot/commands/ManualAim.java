@@ -28,13 +28,11 @@ public class ManualAim extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(dir == "LEFT") {
+    if (dir == "LEFT") {
       Robot.m_turret.lookLeft();
-    }
-    else if(dir == "RIGHT") {
+    } else if (dir == "RIGHT") {
       Robot.m_turret.lookRight();
-    }
-    else { 
+    } else {
       Robot.m_turret.stopTurret();
     }
   }
