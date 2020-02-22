@@ -105,7 +105,7 @@ public class Autonomous extends SubsystemBase {
     protected boolean gyroTurn(double targetAngle) {
 		a_drive.rioGyro.reset();
 		while ((RobotState.isAutonomous() == true) && (Math.abs(readGyro()) < Math.abs(targetAngle)) && (Math.abs(calcP(targetAngle)) > 0.25)) {
-			a_drive.drive(0, 0, calcP(targetAngle));//(0, calcP(targetAngle));
+			// a_drive.drive(0, 0, calcP(targetAngle));//(0, calcP(targetAngle));
 		}
 		stop();	
 		return true;
@@ -120,11 +120,11 @@ public class Autonomous extends SubsystemBase {
 			double drift = readGyro() / 100;
 			drift = Math.min(drift, 0.1);
 			if (distance > 0) {
-				a_drive.drive(0, AUTO_MAX_X, -drift);  // FORWARD
+				// a_drive.drive(0, AUTO_MAX_X, -drift);  // FORWARD
 			}
 			
 			else {
-				a_drive.drive(0, -AUTO_MAX_X, -drift);  // REVERSE
+				// a_drive.drive(0, -AUTO_MAX_X, -drift);  // REVERSE
 			}
 			
 			//System.out.println("Gyro Heading: " + drift);
@@ -143,11 +143,11 @@ public class Autonomous extends SubsystemBase {
 			double drift = readGyro() / 100;
 			drift = Math.min(drift, 0.1);
 			if (distance > 0) {
-				a_drive.drive(AUTO_MAX_Y, 0, -drift);  // RIGHT
+				// a_drive.drive(AUTO_MAX_Y, 0, -drift);  // RIGHT
 			}
 			
 			else {
-				a_drive.drive(-AUTO_MAX_Y, 0, -drift);  // LEFT
+				// a_drive.drive(-AUTO_MAX_Y, 0, -drift);  // LEFT
 			}
 			
 			//System.out.println("Gyro Heading: " + drift);
@@ -291,7 +291,7 @@ public class Autonomous extends SubsystemBase {
 	
 	public void stop() {
 
-		a_drive.drive(0, 0, 0);
+		// a_drive.drive(0, 0, 0);
     	//taskDone = true;
     	
     }

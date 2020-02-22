@@ -27,8 +27,8 @@ public class DriveTrain extends SubsystemBase {
   private final MecanumDrive m_drive;
   private final double rampRate = 0.5;
   private final double deadband = 0.1;
-  private final double stickPower = 0.5;
-  private final double rotationPower = 0.35;
+  private final double stickPowerFactor = 0.65;
+  private final double rotationPowerFactor = 0.5;
 
   private Joystick m_stick;
   private static final int kJoystickChannel = 0;
@@ -114,7 +114,7 @@ public class DriveTrain extends SubsystemBase {
     return (rightFrontEncoder) + -(rightRearEncoder) /4;
   }
 
-  public void drive(final double liveX, final double liveY, final double liveZ) {
+  public void drive() {
       //  m_drive.driveCartesian(liveX, liveY, liveZ);
     double stickAngle = m_stick.getDirectionDegrees();
     double stickPower = m_stick.getMagnitude();
@@ -123,7 +123,7 @@ public class DriveTrain extends SubsystemBase {
     SmartDashboard.putNumber("aGyro", gyroAngle);
     SmartDashboard.putNumber("aStick:", stickAngle);
     SmartDashboard.putNumber("aDrive: ", driveAngle);
-    m_drive.drivePolar(Math.pow(stickPower, 3) * stickPower, driveAngle, Math.pow(m_stick.getZ(),3) * rotationPower);
+    m_drive.drivePolar(Math.pow(stickPower, 3) * stickPowerFactor, driveAngle, Math.pow(m_stick.getZ(),3) * rotationPowerFactor);
    }
 
   public void updateEncoders(){

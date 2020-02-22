@@ -36,9 +36,6 @@ public class Robot extends TimedRobot {
   // private static final String kCustomAuto = "My Auto";
   // private String m_autoSelected;
   // private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  private final double xDirectionScaleFactor = 0.65;
-  private final double strafeScaleFactor = 0.75;
-  private final double rotationScaleFactor = 0.75;
   private static LED m_led = new LED();
   // private static String gameData = "";
   public static DriveTrain m_driveTrain = new DriveTrain();
@@ -145,8 +142,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    m_driveTrain.drive(Math.pow(m_oi.m_stick.getX(), 3) * xDirectionScaleFactor,
-        Math.pow(-m_oi.m_stick.getY(), 3) * strafeScaleFactor, Math.pow(m_oi.m_stick.getZ(), 3) * rotationScaleFactor);
+    m_driveTrain.drive();
 
     // For testing the thrower
     // thrower.set(m_oi.m_stick.getThrottle());
