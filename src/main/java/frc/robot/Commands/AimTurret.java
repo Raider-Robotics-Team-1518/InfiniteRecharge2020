@@ -31,6 +31,7 @@ public class AimTurret extends CommandBase {
   @Override
   public void execute() {
     System.out.println("AimTurret - execute()");
+    Robot.m_turret.shooterRun();
     Robot.m_turret.enableTrackingMode();
     Robot.m_turret.lockOnTarget();
   }
@@ -39,6 +40,7 @@ public class AimTurret extends CommandBase {
   @Override
   public void end(boolean wasInterrupted) {
     super.end(false);
+    Robot.m_turret.shooterStop();
     Robot.m_turret.disableTrackingMode();
   }
 

@@ -31,14 +31,9 @@ public class ColorWheel extends SubsystemBase {
   private final Color kYellowTarget = ColorMatch.makeColor(.319, .558, .124);
 
   // Motor to rotate
-  public static WPI_TalonSRX colorWheelMotor = new WPI_TalonSRX(5);
+  public static WPI_TalonSRX colorWheelMotor = new WPI_TalonSRX(8);
   private final double kMaxRotateMotorPower = 0.25;
-  private final double kMinRotateMotorPower = 0.15;
-
-  // Motor to raise and lower arm
-  public static WPI_TalonSRX colorWheelArm = new WPI_TalonSRX(6);
-  private final double kMaxArmMotorPower = 0.25;
-  private final double kMinArmMotorPower = 0.15;
+  private final double kMinRotateMotorPower = 0.15;  
 
   // Pneumatics to lift/lower
 

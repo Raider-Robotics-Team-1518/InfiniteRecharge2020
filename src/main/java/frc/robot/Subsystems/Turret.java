@@ -7,6 +7,8 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANDigitalInput.LimitSwitch;
@@ -22,7 +24,7 @@ import frc.robot.components.LimeLight;
 public class Turret extends SubsystemBase {
 
   // Turret Aiming System
-  public WPI_TalonSRX turretPivot = new WPI_TalonSRX(5);
+  public WPI_TalonSRX turretPivot = new WPI_TalonSRX(11);
   public CANSparkMax turretElevate = new CANSparkMax(13, MotorType.kBrushless);
   private final double kMinPivotPower = .1;
   private final double kMaxElevatePower = .5;
@@ -32,10 +34,12 @@ public class Turret extends SubsystemBase {
   private static DigitalInput turretRotateRightSwitch;
 
   // Turret Firing System
-  public static CANSparkMax thrower1 = new CANSparkMax(11, MotorType.kBrushless);
-  public static CANSparkMax thrower2 = new CANSparkMax(12, MotorType.kBrushless);
+  public static WPI_TalonFX thrower1 = new WPI_TalonFX(5);
+  public static WPI_TalonFX thrower2 = new WPI_TalonFX(6);
   public SpeedControllerGroup thrower = new SpeedControllerGroup(thrower1, thrower2);
-  private final double kMaxThrowerPower = 1;
+  private final double kMaxThrowerPower = -1;
+  public static WPI_TalonSRX feeder = new WPI_TalonSRX(7);
+  private final double kMaxFeedPower = -1;
 
   private LimeLight lime = new LimeLight();
   private boolean isInTrackingMode = false;
@@ -43,7 +47,6 @@ public class Turret extends SubsystemBase {
   public void init() {
     
     thrower2.setInverted(true);
-    thrower2.setIdleMode(IdleMode.kBrake);
     thrower.set(0);
     turretPivot.set(0);
     turretElevate.set(0);
@@ -93,16 +96,24 @@ public class Turret extends SubsystemBase {
     turretPivot.set(-kMaxTurretPower);
   }
 
-  public void climbUp(){
-    thrower2.set(kMaxThrowerPower);
+  public void shooterRun(){
+    thrower.set(kMaxThrowerPower);
   }
 
-  public void climbDown(){
-    thrower2.set(-kMaxThrowerPower);
+  public void clearJam(){
+    thrower.set(-kMaxThrowerPower);
   }
 
-  public void climbStop(){
-    thrower2.set(0.0);
+  public void shooterStop(){
+    thrower.set(0.0);
+  }
+
+  public void fireOn(){
+    feeder.set(kMaxFeedPower);
+  }
+
+  public void fireOff(){
+    feeder.set(0.0);
   }
 
   public void stopTurret() {
@@ -123,7 +134,5 @@ public class Turret extends SubsystemBase {
     }
 
   }
-
-
 
 }

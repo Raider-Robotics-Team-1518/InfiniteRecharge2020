@@ -39,10 +39,10 @@ public class Robot extends TimedRobot {
   private static LED m_led = new LED();
   // private static String gameData = "";
   public static DriveTrain m_driveTrain = new DriveTrain();
-  private OI m_oi;
+  public static OI m_oi;
   // private AimTurret m_aTurret = new AimTurret();
   public static Turret m_turret = new Turret();
-  private Intake m_intake = new Intake();
+  public static Intake m_intake = new Intake();
   // private ColorWheel m_colorWheel;
   public final static Relay m_relay = new Relay(0);
 
@@ -154,9 +154,9 @@ public class Robot extends TimedRobot {
 
     m_oi.intakePivotIn.whenPressed(() -> m_intake.pivotIn());
     m_oi.intakePivotOut.whenPressed(() -> m_intake.pivotOut());
-    m_oi.climbDownButton.whenPressed(() -> m_turret.climbDown()).whenReleased(() -> m_turret.climbStop());
-    m_oi.climbUpButton.whenPressed(() -> m_turret.climbUp()).whenReleased(() -> m_turret.climbStop());
-    m_oi.testButton.whenPressed(() -> m_intake.intakeOn()).whenReleased(() -> m_intake.intakeOff());
+    // m_oi.climbDownButton.whenPressed(() -> m_turret.climbDown()).whenReleased(() -> m_turret.climbStop());
+    // m_oi.climbUpButton.whenPressed(() -> m_turret.climbUp()).whenReleased(() -> m_turret.climbStop());
+    // m_oi.testButton.whenPressed(() -> m_intake.intakeOn()).whenReleased(() -> m_intake.intakeOff());
 
   }
 

@@ -10,11 +10,11 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Robot;
 
-public class PickupBall extends CommandBase {
+public class UnjamIntake extends CommandBase {
   /**
-   * Creates a new PickupBall.
+   * Creates a new UnjamIntake.
    */
-  public PickupBall() {
+  public UnjamIntake() {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -26,7 +26,7 @@ public class PickupBall extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Robot.m_intake.intakeOn();
+    Robot.m_intake.intakeRevers();
   }
 
   // Called once the command ends or is interrupted.
