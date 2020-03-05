@@ -10,11 +10,11 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Robot;
 
-public class UnjamIntake extends CommandBase {
+public class ColorWheelStage2 extends CommandBase {
   /**
-   * Creates a new UnjamIntake.
+   * Creates a new ColorWheelStage2.
    */
-  public UnjamIntake() {
+  public ColorWheelStage2() {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -26,16 +26,13 @@ public class UnjamIntake extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Robot.m_intake.intakeRevers();
-    Robot.m_turret.clearJam();
+    Robot.m_colorwheel.stageTwoSpin();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    Robot.m_intake.intakeOff();
-    Robot.m_turret.fireOff();
-    Robot.m_turret.shooterStop();
+    Robot.m_colorwheel.colorWheelSpinStop();
   }
 
   // Returns true when the command should end.

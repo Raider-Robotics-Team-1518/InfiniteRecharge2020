@@ -28,7 +28,7 @@ public class Turret extends SubsystemBase {
   public CANSparkMax turretElevate = new CANSparkMax(13, MotorType.kBrushless);
   private final double kMinPivotPower = .1;
   private final double kMaxElevatePower = .5;
-  private final Double minHorizontalAngle = 3.5;
+  private final Double minHorizontalAngle = 1.5;
   private final double kMaxTurretPower = .5;
   private static DigitalInput turretRotateLeftSwitch;
   private static DigitalInput turretRotateRightSwitch;
@@ -50,7 +50,7 @@ public class Turret extends SubsystemBase {
     thrower.set(0);
     turretPivot.set(0);
     turretElevate.set(0);
-    lime.init("limelight-front");
+    lime.init("limelight");
   }
 
   @Override
@@ -101,7 +101,8 @@ public class Turret extends SubsystemBase {
   }
 
   public void clearJam(){
-    thrower.set(-kMaxThrowerPower);
+    thrower.set(-kMaxThrowerPower * 0.5);
+    feeder.set(-kMaxFeedPower);
   }
 
   public void shooterStop(){

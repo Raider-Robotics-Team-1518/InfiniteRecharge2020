@@ -28,14 +28,19 @@ public class Shoot extends CommandBase {
   public void execute() {
     if(Robot.m_oi.turretControlButton.get()){
       Robot.m_turret.fireOn();
+      Robot.m_intake.intakeOn();
     }
-    else{Robot.m_turret.fireOff();}
+    else{
+      Robot.m_turret.fireOff();
+      Robot.m_intake.intakeOff();
+    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     Robot.m_turret.fireOff();
+    Robot.m_intake.intakeOff();
   }
 
   // Returns true when the command should end.

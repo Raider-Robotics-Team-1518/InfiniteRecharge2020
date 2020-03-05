@@ -29,15 +29,15 @@ public class Climb extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
-  public static void extendClaw() {
+  public void extendClaw() {
     climbMotor.set(kMinClimbPower);
   }
 
-  public static void climbStop() {
+  public void climbStop() {
     climbMotor.set(0.0);
   }
 
-  public static void retractClaw() {
+  public void retractClaw() {
     climbMotor.set(-kMinClimbPower);
   }
 }

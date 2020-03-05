@@ -29,70 +29,75 @@ public class ColorWheel extends SubsystemBase {
   private final Color kGreenTarget = ColorMatch.makeColor(.172, .577, .251);
   private final Color kRedTarget = ColorMatch.makeColor(.519, .347, .133);
   private final Color kYellowTarget = ColorMatch.makeColor(.319, .558, .124);
+  private static String previousColor = "";
+  private static boolean colorHasChanged = false;
 
   // Motor to rotate
   public static WPI_TalonSRX colorWheelMotor = new WPI_TalonSRX(8);
-  private final double kMaxRotateMotorPower = 0.25;
-  private final double kMinRotateMotorPower = 0.15;  
+  private final static double kMaxRotateMotorPower = 0.25;
+  private final static double kMinRotateMotorPower = 0.15;
 
-  // Pneumatics to lift/lower
+  
 
   public ColorWheel() {
     m_colorMatcher.addColorMatch(kBlueTarget);
     m_colorMatcher.addColorMatch(kGreenTarget);
     m_colorMatcher.addColorMatch(kRedTarget);
     m_colorMatcher.addColorMatch(kYellowTarget);
-
+    //colorWheelMotor.setIdleMode(IdleMode.kBrake);
+   
   }
 
-  @Override
-  public void periodic() {
+  /*
+   * @Override public void periodic() {
+   * 
+   * }
+   */
+  public void stageThreeSpin() {
     // Update color value from sensor to dashboard
     // Send color data to dashboard
     Color detectedColor = colorSensor.getColor();
-    SmartDashboard.putNumber("xRed", detectedColor.red);
-    SmartDashboard.putNumber("xGreen", detectedColor.green);
-    SmartDashboard.putNumber("xBlue", detectedColor.blue);
     ColorMatchResult match = m_colorMatcher.matchClosestColor(detectedColor);
-
     String gameData = DriverStation.getInstance().getGameSpecificMessage();
+    if (previousColor == ""){
+      previousColor = getColorName(match);
+      colorWheelMotor.set(kMinRotateMotorPower);
+    }
+    if (getColorName(match) == previousColor){
+      return;
+    }
     if (gameData.length() > 0) {
       switch (gameData.charAt(0)) {
         case 'B':
-          if (match.color != kRedTarget) {
-            // drive spinner motor
-          } else {
-            // stop motor
+          if (match.color == kRedTarget) {
             System.out.println("we found blue");
-
+            colorWheelSpinStop();
           }
+          previousColor = getColorName(match);
           SmartDashboard.putString("FMS Color", "BLUE");
           break;
         case 'G':
-          if (match.color != kYellowTarget) {
-            // drive spinner motor
-          } else {
-            // stop motor
+          if (match.color == kYellowTarget) {
             System.out.println("we found green");
+            colorWheelSpinStop();
           }
+          previousColor = getColorName(match);
           SmartDashboard.putString("FMS Color", "GREEN");
           break;
         case 'R':
-          if (match.color != kBlueTarget) {
-            // drive spinner motor
-          } else {
-            // stop motor
+          if (match.color == kBlueTarget) {
             System.out.println("we found red");
+            colorWheelSpinStop();
           }
+          previousColor = getColorName(match);
           SmartDashboard.putString("FMS Color", "RED");
           break;
         case 'Y':
-          if (match.color != kGreenTarget) {
-            // drive spinner motor
-          } else {
-            // stop motor
+          if (match.color == kGreenTarget) {
             System.out.println("we found yellow");
+            colorWheelSpinStop();
           }
+          previousColor = getColorName(match);
           SmartDashboard.putString("FMS Color", "YELLOW");
           break;
         default:
@@ -101,7 +106,59 @@ public class ColorWheel extends SubsystemBase {
       }
     } else {
       // Code for no data received yet
+      colorWheelSpinStop();
     }
 
+
+
+
+
   }
-}
+
+  public void stageTwoSpin() {
+    if(SmartDashboard.getNumber("ColorWheel/ColorChanges", 0) >= 25){
+      colorWheelSpinStop();
+      previousColor = "";
+      return;
+    }
+    colorWheelMotor.set(kMaxRotateMotorPower);
+    Color detectedColor = colorSensor.getColor();
+    ColorMatchResult match = m_colorMatcher.matchClosestColor(detectedColor);
+    if(getColorName(match) != previousColor){
+      previousColor = getColorName(match);
+      double colorChanges = SmartDashboard.getNumber("ColorWheel/ColorChanges", 0);
+      colorChanges++;
+      SmartDashboard.putNumber("ColorWheel/ColorChanges", colorChanges);
+      int numRotations = (int)Math.floor(colorChanges/8);
+      SmartDashboard.putNumber("ColorWheel/Rotations", numRotations);
+    }
+  }
+  
+  public void colorWheelSpinStop() {
+    colorWheelMotor.set(0.0);
+  }
+
+  
+  
+  
+  private String getColorName(ColorMatchResult match){
+    if (match.color != kRedTarget) {
+      return "red";
+    } else if (match.color != kYellowTarget) {
+      return "yellow";
+    }  else if (match.color != kBlueTarget) {
+      return "blue";
+    }  else if (match.color != kGreenTarget) {
+      return "green";
+    } else {return "";}
+  }
+  
+    
+
+  
+  @Override
+  public void periodic() {
+  }
+
+ }
+

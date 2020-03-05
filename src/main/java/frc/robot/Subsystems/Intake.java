@@ -42,7 +42,7 @@ public class Intake extends SubsystemBase {
       SmartDashboard.putBoolean("LimitIn", intakeFullyRetractedSwitch.get());
       pivotMotor.set(kMaxPivotMotorPower);
     } else {
-      pivotMotor.set(0.0);
+      pivotStop();
     }
   }
 
@@ -52,12 +52,16 @@ public class Intake extends SubsystemBase {
       SmartDashboard.putBoolean("LimitIn", intakeFullyRetractedSwitch.get());
       pivotMotor.set(-kMaxPivotMotorPower);
     } else {
-      pivotMotor.set(0.0);
+      pivotStop();
     }
   }
 
+  public void pivotStop(){
+    pivotMotor.set(0);
+  }
+
   public void intakeOn() {
-    intakeMotor.set(0.75);
+    intakeMotor.set(0.9);
   }
 
   public void intakeOff() {
@@ -65,6 +69,6 @@ public class Intake extends SubsystemBase {
   }
 
   public void intakeRevers(){
-    intakeMotor.set(-0.75);
+    intakeMotor.set(-0.9);
   }
 }

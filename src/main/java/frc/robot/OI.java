@@ -29,12 +29,12 @@ public class OI extends SubsystemBase {
   public final JoystickButton intakePivotOut;
   public final JoystickButton intakePivotIn;
   public final JoystickButton runIntake;
-  public final JoystickButton climbUpButton;
-  public final JoystickButton climbDownButton;
   public final JoystickButton wedgieButton;
-  public final JoystickButton testButton;
+  public final JoystickButton intakeJam;
   public final JoystickButton retractClawButton;
   public final JoystickButton extendClawButton;
+  public final JoystickButton stage2button;
+  public final JoystickButton stage3button;
 
   private static boolean wedgieIsExtended = false;
 
@@ -44,23 +44,36 @@ public class OI extends SubsystemBase {
   public OI() {
     System.out.println("OI is being loaded");
     m_stick = new Joystick(0);
+
     fireControl = new JoystickButton(m_stick, 1);
     fireControl.whileHeld(new Shoot());
+
     turretControlButton = new JoystickButton(m_stick, 2);
     turretControlButton.whileHeld(new AimTurret());
 
     intakePivotOut = new JoystickButton(m_stick, 5);
+    intakePivotOut.whenPressed(() -> Robot.m_intake.pivotOut()).whenReleased(() -> Robot.m_intake.pivotStop());
     intakePivotIn = new JoystickButton(m_stick, 6);
+    intakePivotIn.whenPressed(() -> Robot.m_intake.pivotIn()).whenReleased(() -> Robot.m_intake.pivotStop());
+
     runIntake = new JoystickButton(m_stick, 7);
     runIntake.whileHeld(new PickupBall());
 
-    wedgieButton = new JoystickButton(m_stick, 9);
-    climbUpButton = new JoystickButton(m_stick, 12);
-    climbDownButton = new JoystickButton(m_stick, 11);
-    testButton = new JoystickButton(m_stick, 10);
     retractClawButton = new JoystickButton(m_stick, 3);
+    retractClawButton.whenPressed(() -> Robot.m_climb.retractClaw()).whenReleased(() -> Robot.m_climb.climbStop());
     extendClawButton = new JoystickButton(m_stick, 4);
-    testButton.whileHeld(new UnjamIntake());
+    extendClawButton.whenPressed(() -> Robot.m_climb.extendClaw()).whenReleased(() -> Robot.m_climb.climbStop());
+
+    intakeJam = new JoystickButton(m_stick, 10);
+    intakeJam.whileHeld(new UnjamIntake());
+
+    stage2button = new JoystickButton(m_stick, 11);
+    stage2button.whileHeld(new ColorWheelStage2());
+
+    stage3button = new JoystickButton(m_stick, 12);
+    stage3button.whileHeld(new ColorWheelStage3());
+
+    wedgieButton = new JoystickButton(m_stick, 9);
     wedgieButton.whenPressed(() -> {
       if (wedgieIsExtended) {
         Wedgie.lockWedgie();
@@ -70,16 +83,7 @@ public class OI extends SubsystemBase {
     }).whenReleased(() -> {
       wedgieIsExtended = !wedgieIsExtended;
     });
-    extendClawButton.whenPressed(() -> {
-      Climb.extendClaw();
-    }).whenReleased(() -> {
-      Climb.climbStop();
-    });
-    retractClawButton.whenPressed(() -> {
-      Climb.retractClaw();
-    }).whenReleased(() -> {
-      Climb.climbStop();
-    });
+  
   }
 
   public void get() {
