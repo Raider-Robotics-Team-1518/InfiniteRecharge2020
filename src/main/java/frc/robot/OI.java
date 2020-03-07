@@ -29,14 +29,11 @@ public class OI extends SubsystemBase {
   public final JoystickButton intakePivotOut;
   public final JoystickButton intakePivotIn;
   public final JoystickButton runIntake;
-  public final JoystickButton wedgieButton;
   public final JoystickButton intakeJam;
   public final JoystickButton retractClawButton;
   public final JoystickButton extendClawButton;
   public final JoystickButton stage2button;
   public final JoystickButton stage3button;
-
-  private static boolean wedgieIsExtended = false;
 
   /**
    * Creates a new OI.
@@ -72,18 +69,6 @@ public class OI extends SubsystemBase {
 
     stage3button = new JoystickButton(m_stick, 12);
     stage3button.whileHeld(new ColorWheelStage3());
-
-    wedgieButton = new JoystickButton(m_stick, 9);
-    wedgieButton.whenPressed(() -> {
-      if (wedgieIsExtended) {
-        Wedgie.lockWedgie();
-      } else {
-        Wedgie.unlockWedgie();
-      }
-    }).whenReleased(() -> {
-      wedgieIsExtended = !wedgieIsExtended;
-    });
-  
   }
 
   public void get() {
@@ -91,7 +76,6 @@ public class OI extends SubsystemBase {
     liveY = m_stick.getY();
     liveZ = m_stick.getZ();
     livePow = m_stick.getThrottle();
-
   }
 
   @Override

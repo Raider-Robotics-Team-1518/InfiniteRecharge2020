@@ -30,6 +30,7 @@ public class ColorWheel extends SubsystemBase {
   private final Color kRedTarget = ColorMatch.makeColor(.519, .347, .133);
   private final Color kYellowTarget = ColorMatch.makeColor(.319, .558, .124);
   private static String previousColor = "";
+  private static int colorChanges = 0;
   private static boolean colorHasChanged = false;
 
   // Motor to rotate
@@ -116,7 +117,7 @@ public class ColorWheel extends SubsystemBase {
   }
 
   public void stageTwoSpin() {
-    if(SmartDashboard.getNumber("ColorWheel/ColorChanges", 0) >= 25){
+    if(colorChanges > 30){
       colorWheelSpinStop();
       previousColor = "";
       return;
@@ -126,9 +127,7 @@ public class ColorWheel extends SubsystemBase {
     ColorMatchResult match = m_colorMatcher.matchClosestColor(detectedColor);
     if(getColorName(match) != previousColor){
       previousColor = getColorName(match);
-      double colorChanges = SmartDashboard.getNumber("ColorWheel/ColorChanges", 0);
       colorChanges++;
-      SmartDashboard.putNumber("ColorWheel/ColorChanges", colorChanges);
       int numRotations = (int)Math.floor(colorChanges/8);
       SmartDashboard.putNumber("ColorWheel/Rotations", numRotations);
     }
@@ -142,13 +141,13 @@ public class ColorWheel extends SubsystemBase {
   
   
   private String getColorName(ColorMatchResult match){
-    if (match.color != kRedTarget) {
+    if (match.color == kRedTarget) {
       return "red";
-    } else if (match.color != kYellowTarget) {
+    } else if (match.color == kYellowTarget) {
       return "yellow";
-    }  else if (match.color != kBlueTarget) {
+    }  else if (match.color == kBlueTarget) {
       return "blue";
-    }  else if (match.color != kGreenTarget) {
+    }  else if (match.color == kGreenTarget) {
       return "green";
     } else {return "";}
   }

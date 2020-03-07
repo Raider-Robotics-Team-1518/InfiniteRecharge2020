@@ -22,8 +22,8 @@ public class DriveTrain extends SubsystemBase {
 
   private final WPI_TalonFX leftFront = new WPI_TalonFX(1);
   private final WPI_TalonFX leftRear = new WPI_TalonFX(2);
-  private final WPI_TalonFX rightRear = new WPI_TalonFX(4);
-  private final WPI_TalonFX rightFront = new WPI_TalonFX(3);
+  private final WPI_TalonFX rightRear = new WPI_TalonFX(3);
+  private final WPI_TalonFX rightFront = new WPI_TalonFX(4);
   private final MecanumDrive m_drive;
   private final double rampRate = 0.5;
   private final double deadband = 0.1;

@@ -7,6 +7,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -30,8 +31,13 @@ public class Turret extends SubsystemBase {
   private final double kMaxElevatePower = .5;
   private final Double minHorizontalAngle = 1.5;
   private final double kMaxTurretPower = .5;
-  private static DigitalInput turretRotateLeftSwitch;
-  private static DigitalInput turretRotateRightSwitch;
+  private static DigitalInput turretRotateSwitch;
+  private final int kMaxLeftTurretRotate = -4000;
+  private final int kMaxRightTurretRotate = 4000;
+  private static int pulseWidth = 0;
+  private final boolean kDiscontinuityPresent = true;
+  private static int turretCurrentPosition;
+
 
   // Turret Firing System
   public static WPI_TalonFX thrower1 = new WPI_TalonFX(5);
@@ -51,12 +57,34 @@ public class Turret extends SubsystemBase {
     turretPivot.set(0);
     turretElevate.set(0);
     lime.init("limelight");
+    turretPivot.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, 30);
+    initQuadrature();
+  }
+
+  public void initQuadrature () {
+    pulseWidth = turretPivot.getSensorCollection().getPulseWidthPosition();
+    if (kDiscontinuityPresent){
+      int newCenter;
+      newCenter = (kMaxLeftTurretRotate + kMaxRightTurretRotate)/2;
+      newCenter &= 0xFFF;
+      pulseWidth -= newCenter;
+    }
+    pulseWidth = pulseWidth & 0xFFF;
+    turretPivot.getSensorCollection().setQuadraturePosition(pulseWidth, 30);
+    while((turretCurrentPosition < 300) && (turretRotateSwitch.get())) {
+      turretPivot.set(.1);
+    }
+    turretPivot.set(0);
+    while((turretCurrentPosition > 600) && (turretRotateSwitch.get())) {
+      turretPivot.set(-.1);
+    }
+    turretPivot.set(0);
   }
 
   @Override
   public void periodic() {
     // Add code here to update driver station with turret info (bearing and elevation)
-
+    turretCurrentPosition = turretPivot.getSelectedSensorPosition();
   }
 
   public void enableTrackingMode() {
@@ -68,32 +96,31 @@ public class Turret extends SubsystemBase {
   }
 
   public Turret() {
-    turretRotateLeftSwitch = new DigitalInput(3);
-    turretRotateRightSwitch = new DigitalInput(4);
+    turretRotateSwitch = new DigitalInput(1);
   }
 
-  public void leftLimit() {
-    if (turretRotateLeftSwitch.get() == true) {
-      turretPivot.set(kMinPivotPower);
-    } else {
-      turretPivot.set(0.0);
-    }
+  public boolean isAtLeftLimit() {
+    return turretCurrentPosition <= kMaxLeftTurretRotate;
   }
 
-  public void rightLimit() {
-    if (turretRotateRightSwitch.get() == true) {
-      turretPivot.set(-kMinPivotPower);
-    } else {
-      turretPivot.set(0.0);
-    }
+  public boolean isAtRightLimit() {
+    return turretCurrentPosition >= kMaxRightTurretRotate;
   }
 
   public void lookLeft(){
-    turretPivot.set(kMaxTurretPower);
+    // if (!isAtLeftLimit()) {
+      turretPivot.set(kMaxTurretPower);
+    // } else {
+      // stopTurret();
+    // }
   }
 
   public void lookRight(){
-    turretPivot.set(-kMaxTurretPower);
+    // if (!isAtRightLimit()) {
+      turretPivot.set(-kMaxTurretPower);
+    // } else {
+      // stopTurret();
+    // }
   }
 
   public void shooterRun(){
@@ -131,9 +158,25 @@ public class Turret extends SubsystemBase {
       }
       System.out.println("horizontalOffset: " + horizontalOffset.toString());
       System.out.println("minHorizontalAngle: " + minHorizontalAngle.toString());
-      turretPivot.set(-newZ);
+      if (newZ < 0 && !isAtLeftLimit()) {
+        turretPivot.set(-newZ);
+      } else if (newZ > 0 && !isAtRightLimit()) {
+        turretPivot.set(-newZ);
+      }
     }
 
+  }
+
+  public void pivotUp() {
+    turretElevate.set(kMaxElevatePower);
+  }
+
+  public void pivotDown() {
+    turretElevate.set(-kMaxElevatePower);
+  }
+
+  public void pivotStop() {
+    turretElevate.set(0.0);
   }
 
 }
