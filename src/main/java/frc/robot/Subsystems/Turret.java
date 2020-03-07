@@ -7,19 +7,18 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANDigitalInput.LimitSwitch;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.DigitalInput;
-
 import frc.robot.components.LimeLight;
 
 public class Turret extends SubsystemBase {
@@ -27,17 +26,14 @@ public class Turret extends SubsystemBase {
   // Turret Aiming System
   public WPI_TalonSRX turretPivot = new WPI_TalonSRX(11);
   public CANSparkMax turretElevate = new CANSparkMax(13, MotorType.kBrushless);
+  private CANEncoder hoodEncoder = turretElevate.getEncoder();
   private final double kMinPivotPower = .1;
   private final double kMaxElevatePower = .5;
   private final Double minHorizontalAngle = 1.5;
   private final double kMaxTurretPower = .5;
-  private static DigitalInput turretRotateSwitch;
-  private final int kMaxLeftTurretRotate = -4000;
-  private final int kMaxRightTurretRotate = 4000;
-  private static int pulseWidth = 0;
-  private final boolean kDiscontinuityPresent = true;
-  private static int turretCurrentPosition;
-
+  private static DigitalInput turretMaxLeftSwitch = new DigitalInput(1);
+  private static DigitalInput turretMaxRightSwitch = new DigitalInput(2);
+  // private double hoodEncoderPosition = 0;
 
   // Turret Firing System
   public static WPI_TalonFX thrower1 = new WPI_TalonFX(5);
@@ -51,40 +47,19 @@ public class Turret extends SubsystemBase {
   private boolean isInTrackingMode = false;
 
   public void init() {
-    
     thrower2.setInverted(true);
     thrower.set(0);
+    turretPivot.setNeutralMode(NeutralMode.Brake);
     turretPivot.set(0);
+    turretElevate.setIdleMode(IdleMode.kBrake);
     turretElevate.set(0);
     lime.init("limelight");
-    turretPivot.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, 30);
-    initQuadrature();
-  }
-
-  public void initQuadrature () {
-    pulseWidth = turretPivot.getSensorCollection().getPulseWidthPosition();
-    if (kDiscontinuityPresent){
-      int newCenter;
-      newCenter = (kMaxLeftTurretRotate + kMaxRightTurretRotate)/2;
-      newCenter &= 0xFFF;
-      pulseWidth -= newCenter;
-    }
-    pulseWidth = pulseWidth & 0xFFF;
-    turretPivot.getSensorCollection().setQuadraturePosition(pulseWidth, 30);
-    while((turretCurrentPosition < 300) && (turretRotateSwitch.get())) {
-      turretPivot.set(.1);
-    }
-    turretPivot.set(0);
-    while((turretCurrentPosition > 600) && (turretRotateSwitch.get())) {
-      turretPivot.set(-.1);
-    }
-    turretPivot.set(0);
   }
 
   @Override
   public void periodic() {
     // Add code here to update driver station with turret info (bearing and elevation)
-    turretCurrentPosition = turretPivot.getSelectedSensorPosition();
+    SmartDashboard.putNumber("_Hood_Encoder", hoodEncoder.getPosition());
   }
 
   public void enableTrackingMode() {
@@ -96,31 +71,30 @@ public class Turret extends SubsystemBase {
   }
 
   public Turret() {
-    turretRotateSwitch = new DigitalInput(1);
   }
 
   public boolean isAtLeftLimit() {
-    return turretCurrentPosition <= kMaxLeftTurretRotate;
+    return turretMaxLeftSwitch.get();
   }
 
   public boolean isAtRightLimit() {
-    return turretCurrentPosition >= kMaxRightTurretRotate;
+    return turretMaxRightSwitch.get();
   }
 
   public void lookLeft(){
-    // if (!isAtLeftLimit()) {
+    if (!isAtLeftLimit()) {
       turretPivot.set(kMaxTurretPower);
-    // } else {
-      // stopTurret();
-    // }
+    } else {
+      stopTurret();
+    }
   }
 
   public void lookRight(){
-    // if (!isAtRightLimit()) {
+    if (!isAtRightLimit()) {
       turretPivot.set(-kMaxTurretPower);
-    // } else {
-      // stopTurret();
-    // }
+    } else {
+      stopTurret();
+    }
   }
 
   public void shooterRun(){

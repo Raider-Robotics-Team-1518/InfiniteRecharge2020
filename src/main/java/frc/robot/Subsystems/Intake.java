@@ -27,8 +27,8 @@ public class Intake extends SubsystemBase {
    * Creates a new Intake.
    */
   public Intake() {
-    intakeFullyExtendedSwitch = new DigitalInput(1);
-    intakeFullyRetractedSwitch = new DigitalInput(2);
+    intakeFullyExtendedSwitch = new DigitalInput(3);
+    intakeFullyRetractedSwitch = new DigitalInput(4);
   }
 
   @Override

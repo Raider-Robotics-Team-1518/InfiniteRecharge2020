@@ -42,7 +42,6 @@ public class Robot extends TimedRobot {
   public static OI m_oi;
   public static Turret m_turret = new Turret();
   public static Intake m_intake = new Intake();
-  public final static Relay m_relay = new Relay(0);
   public static ColorWheel m_colorwheel = new ColorWheel();
   public static Climb m_climb = new Climb();
   CommandBase at;
@@ -60,7 +59,6 @@ public class Robot extends TimedRobot {
     m_oi = new OI();
     m_turret.init();
     // m_colorWheel = new ColorWheel();
-    m_relay.setDirection(Relay.Direction.kBoth);
   }
 
   /**
@@ -133,6 +131,7 @@ public class Robot extends TimedRobot {
     m_led.disableRainbow();
     m_led.setSolidColor(LED.Colors.WHITE);
     m_driveTrain.resetGyro();
+    // m_turret.initQuadrature();
   }
 
   /**
@@ -159,7 +158,6 @@ public class Robot extends TimedRobot {
     super.disabledInit();
     m_driveTrain.setCoastMode();
     m_led.enableRainbow();
-    // m_relay.set(Relay.Value.kOff);
   }
 
   /**
