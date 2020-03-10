@@ -26,14 +26,16 @@ public class Turret extends SubsystemBase {
   // Turret Aiming System
   public WPI_TalonSRX turretPivot = new WPI_TalonSRX(11);
   public CANSparkMax turretElevate = new CANSparkMax(13, MotorType.kBrushless);
-  private CANEncoder hoodEncoder = turretElevate.getEncoder();
+  public CANEncoder hoodEncoder = turretElevate.getEncoder();
   private final double kMinPivotPower = .1;
   private final double kMaxElevatePower = .5;
   private final Double minHorizontalAngle = 1.5;
   private final double kMaxTurretPower = .5;
-  private static DigitalInput turretMaxLeftSwitch = new DigitalInput(1);
-  private static DigitalInput turretMaxRightSwitch = new DigitalInput(2);
-  // private double hoodEncoderPosition = 0;
+  private static DigitalInput turretMaxLeftSwitch = new DigitalInput(2);
+  private static DigitalInput turretMaxRightSwitch = new DigitalInput(1);
+  private double hoodEncoderPosition = 0;
+  private double hoodEncoderMinPosition = -1;  // assume same as hoodEncoderPosition at robot init
+  private double hoodEncoderMaxPosition = -25;
 
   // Turret Firing System
   public static WPI_TalonFX thrower1 = new WPI_TalonFX(5);
@@ -54,12 +56,15 @@ public class Turret extends SubsystemBase {
     turretElevate.setIdleMode(IdleMode.kBrake);
     turretElevate.set(0);
     lime.init("limelight");
+    hoodEncoder.setPosition(0);
   }
 
   @Override
   public void periodic() {
     // Add code here to update driver station with turret info (bearing and elevation)
     SmartDashboard.putNumber("_Hood_Encoder", hoodEncoder.getPosition());
+    SmartDashboard.putNumber("_Shooter_Speed", thrower1.getSelectedSensorVelocity());
+
   }
 
   public void enableTrackingMode() {
@@ -81,8 +86,18 @@ public class Turret extends SubsystemBase {
     return turretMaxRightSwitch.get();
   }
 
+  public boolean hoodIsAtMaxElevation() {
+    hoodEncoderPosition = hoodEncoder.getPosition();
+    return hoodEncoderPosition <= hoodEncoderMaxPosition;
+  }
+
+  public boolean hoodIsAtMinElevation() {
+    hoodEncoderPosition = hoodEncoder.getPosition();
+    return hoodEncoderPosition >= hoodEncoderMinPosition;
+  }
+
   public void lookLeft(){
-    if (!isAtLeftLimit()) {
+    if (isAtLeftLimit()) {
       turretPivot.set(kMaxTurretPower);
     } else {
       stopTurret();
@@ -90,7 +105,7 @@ public class Turret extends SubsystemBase {
   }
 
   public void lookRight(){
-    if (!isAtRightLimit()) {
+    if (isAtRightLimit()) {
       turretPivot.set(-kMaxTurretPower);
     } else {
       stopTurret();
@@ -142,11 +157,19 @@ public class Turret extends SubsystemBase {
   }
 
   public void pivotUp() {
-    turretElevate.set(kMaxElevatePower);
+    if (!hoodIsAtMaxElevation()) {
+      turretElevate.set(kMaxElevatePower);
+    } else {
+      pivotStop();
+    }
   }
 
   public void pivotDown() {
-    turretElevate.set(-kMaxElevatePower);
+    if (!hoodIsAtMinElevation()) {
+      turretElevate.set(-kMaxElevatePower);
+    } else {
+      pivotStop();
+    }
   }
 
   public void pivotStop() {

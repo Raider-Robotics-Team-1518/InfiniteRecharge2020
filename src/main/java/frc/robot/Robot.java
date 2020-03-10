@@ -7,8 +7,12 @@
 
 package frc.robot;
 
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.cscore.VideoMode.PixelFormat;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -32,18 +36,20 @@ import edu.wpi.first.wpilibj.Relay;
  * project.
  */
 public class Robot extends TimedRobot {
-  // private static final String kDefaultAuto = "Default";
-  // private static final String kCustomAuto = "My Auto";
-  // private String m_autoSelected;
-  // private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  private static final String kDefaultAuto = "Default";
+  private static final String kCustomAuto = "My Auto";
+  private String m_autoSelected;
+  private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private static LED m_led = new LED();
-  // private static String gameData = "";
   public static DriveTrain m_driveTrain = new DriveTrain();
   public static OI m_oi;
   public static Turret m_turret = new Turret();
   public static Intake m_intake = new Intake();
   public static ColorWheel m_colorwheel = new ColorWheel();
   public static Climb m_climb = new Climb();
+  public static UsbCamera cam0;
+  private static Alliance alliance;
+
   CommandBase at;
 
   /**
@@ -53,12 +59,14 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     super.robotInit();
-    // m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    // m_chooser.addOption("My Auto", kCustomAuto);
-    // SmartDashboard.putData("Auto choices", m_chooser);
+    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
+    m_chooser.addOption("My Auto", kCustomAuto);
+    SmartDashboard.putData("Auto choices", m_chooser);
     m_oi = new OI();
     m_turret.init();
-    // m_colorWheel = new ColorWheel();
+    cam0 = CameraServer.getInstance().startAutomaticCapture();
+    cam0.setVideoMode(PixelFormat.kMJPEG, 160, 120, 15);
+
   }
 
   /**
@@ -90,14 +98,16 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+    alliance = DriverStation.getInstance().getAlliance();
+    setLights();
     m_driveTrain.resetAllEncoders();
     m_driveTrain.resetGyro();
-    // m_autoSelected = m_chooser.getSelected();
-    // System.out.println("Auto selected: " + m_autoSelected);
+    m_autoSelected = m_chooser.getSelected();
+    System.out.println("Auto selected: " + m_autoSelected);
     at = (CommandBase) new AutonomousTest();
     at.initialize();
     at.execute();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     m_led.disableRainbow();
 
   }
@@ -107,31 +117,24 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    // switch (m_autoSelected) {
-    // case kCustomAuto:
-    // // Put custom auto code here
-    // break;
-    // case kDefaultAuto:
-    // default:
-    // // Put default auto code here
-    // break;
-    // }
-    // SmartDashboard.putNumber("mFrontAvg",
-    // at.autosystem.a_drive.getFrontAverage());
-    // SmartDashboard.putNumber("mLeftAvg",
-    // at.autosystem.a_drive.getLeftStrafeAverage());
-    // SmartDashboard.putNumber("mRightAvg",
-    // at.autosystem.a_drive.getRightStrafeAverage());
-    // SmartDashboard.putNumber("mRearAvg", at.autosystem.a_drive.getRearAverage());
+    switch (m_autoSelected) {
+    case kCustomAuto:
+    // Put custom auto code here
+    break;
+    case kDefaultAuto:
+    default:
+    // Put default auto code here
+    break;
+    }
 
   }
 
   @Override
   public void teleopInit() {
-    m_led.disableRainbow();
-    m_led.setSolidColor(LED.Colors.WHITE);
+    alliance = DriverStation.getInstance().getAlliance();
+    setLights();
     m_driveTrain.resetGyro();
-    // m_turret.initQuadrature();
+    m_turret.hoodEncoder.setPosition(0);
   }
 
   /**
@@ -166,4 +169,18 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
   }
+
+  private void setLights() {
+    m_led.disableRainbow();
+    if (alliance == Alliance.Red){
+      m_led.setSolidColor(LED.Colors.RED);
+    }
+    else if (alliance == Alliance.Blue){
+      m_led.setSolidColor(LED.Colors.BLUE);  
+    }
+    else {
+      m_led.setSolidColor(LED.Colors.GREEN);
+    }
+  }
+
 }
