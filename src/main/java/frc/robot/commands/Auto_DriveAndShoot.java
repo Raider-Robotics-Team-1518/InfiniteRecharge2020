@@ -7,51 +7,56 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Robot;
+import frc.robot.subsystems.Autonomous;
+import frc.robot.subsystems.Turret;
 
-public class AimTurret extends CommandBase {
+public class Auto_DriveAndShoot extends CommandBase {
   /**
-   * Creates a new TurnTurret.
+   * Creates a new Auto_DriveAndShoot.
    */
+  private static final double distanceToDrive = 6; // inches
+  private static Autonomous auto;
+  private static boolean isDone = false;
 
 
-  public AimTurret() {
-    // Use addRequirements() here to declare subsystem dependencies.
-    // System.out.println("AimTurret instantiated");
+  public Auto_DriveAndShoot() {
+    auto = new Autonomous();
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    // System.out.println("AimTurret - initialize()");
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // System.out.println("AimTurret - execute()");
-    Robot.m_turret.shooterRun();
-    Robot.m_turret.enableTrackingMode();
-    Robot.m_turret.lockOnTarget();
+    if (!isDone) {
+      Robot.m_turret.shooterRun();
+      Robot.m_turret.enableTrackingMode();
+      Robot.m_turret.lockOnTarget();
+      auto.drivebackward(distanceToDrive);
+      Robot.m_turret.fireOn();
+      end(false);
+    }
+
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean wasInterrupted) {
-    super.end(false);
+  public void end(boolean interrupted) {
+    super.end(interrupted);
+    isDone = true;
+    Robot.m_turret.fireOff();
     Robot.m_turret.shooterStop();
     Robot.m_turret.disableTrackingMode();
-    SmartDashboard.putBoolean("Target/ShooterAtSpeed", false);
-    SmartDashboard.putNumber("Target/Shooter_Speed", 0);
-
   }
 
-  // // Returns true when the command should end.
-//   @Override
-//   public boolean isFinished() {
-//     return true;
-//   }
-
+  // Returns true when the command should end.
+  @Override
+  public boolean isFinished() {
+    return isDone;
+  }
 }

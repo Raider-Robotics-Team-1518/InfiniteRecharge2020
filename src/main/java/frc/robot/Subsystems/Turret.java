@@ -37,6 +37,12 @@ public class Turret extends SubsystemBase {
   private double hoodEncoderMinPosition = -1;  // assume same as hoodEncoderPosition at robot init
   private double hoodEncoderMaxPosition = -25;
 
+  // OUTER PORT is 8 ft. 2¼ in. (~249 cm)
+  private static final double targetHeight = 98.25; // Inches
+  private static final double optimalDistance = 84; // Inches
+  private static final double cameraHeight = 30.0;  // Inches
+  private static final double cameraMountingAngle = 23.0; // degrees
+
   // Turret Firing System
   public static WPI_TalonFX thrower1 = new WPI_TalonFX(5);
   public static WPI_TalonFX thrower2 = new WPI_TalonFX(6);
@@ -61,10 +67,6 @@ public class Turret extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // Add code here to update driver station with turret info (bearing and elevation)
-    SmartDashboard.putNumber("_Hood_Encoder", hoodEncoder.getPosition());
-    SmartDashboard.putNumber("_Shooter_Speed", thrower1.getSelectedSensorVelocity());
-
   }
 
   public void enableTrackingMode() {
@@ -140,20 +142,58 @@ public class Turret extends SubsystemBase {
   public void lockOnTarget() {
     if (isInTrackingMode) {
       Double horizontalOffset = lime.getTargetOffsetHorizontal();
-      // Double verticalOffset = lime.getTargetOffsetVertical();
-      double newZ = 0;
+      Double verticalOffset = lime.getTargetOffsetVertical();
+      // see https://docs.limelightvision.io/en/latest/cs_estimating_distance.html
+      Double targetDistance = (targetHeight - cameraHeight) / Math.tan((cameraMountingAngle + verticalOffset) * Math.PI / 180); // in inches
+      Double hoodEncoderPosition = hoodEncoder.getPosition();
+      int shooterSpeed = -thrower2.getSelectedSensorVelocity();
+
+      SmartDashboard.putNumber("Target/TargetDistance", (double)Math.round(targetDistance * 100d) / 100d);
+      SmartDashboard.putNumber("Target/HorizontalOffset: ", horizontalOffset);
+      SmartDashboard.putNumber("Target/MinHorizontalAngle: ", minHorizontalAngle);
+      SmartDashboard.putNumber("Target/Hood_Encoder", hoodEncoderPosition);
+      SmartDashboard.putNumber("Target/Shooter_Speed", shooterSpeed);
+      if (shooterSpeed >= 18500) {
+        SmartDashboard.putBoolean("Target/ShooterAtSpeed", true);
+      }
+      else { SmartDashboard.putBoolean("Target/ShooterAtSpeed", false);}
+  
+      Double newZ = 0.0;
       if (Math.abs(horizontalOffset) > minHorizontalAngle) {
         newZ = kMinPivotPower * (int) Math.signum(horizontalOffset) + Math.tan(horizontalOffset * Math.PI / 180);
       }
-      System.out.println("horizontalOffset: " + horizontalOffset.toString());
-      System.out.println("minHorizontalAngle: " + minHorizontalAngle.toString());
       if (newZ < 0 && !isAtLeftLimit()) {
         turretPivot.set(-newZ);
       } else if (newZ > 0 && !isAtRightLimit()) {
         turretPivot.set(-newZ);
       }
+// System.out.println(hoodEncoderPosition.toString());
+      // ADD CODE HERE TO LOOKUP HOOD ANGLE BASED ON DISTANCE
+      Double hoodAngle = 0.0;
+      if (targetDistance <= 55) {
+        hoodAngle = -hoodEncoderMinPosition;
+      } else if (targetDistance > 55 && targetDistance <= 123) {
+        hoodAngle = -16.76;
+      } else if (targetDistance > 123 && targetDistance <= 174) {
+        hoodAngle = -21.8;
+      } else if (targetDistance > 174 && targetDistance <= 215) {
+        hoodAngle = -21.976;
+      } else if (targetDistance > 215) {
+        hoodAngle = -23.476;
+      }
+      pivotToHoodAngle(hoodAngle);
     }
+  }
 
+  public void pivotToHoodAngle(Double hoodAngle) {
+    Double hoodEncoderPosition = hoodEncoder.getPosition();
+    if (hoodEncoderPosition > hoodAngle) {
+      pivotUp();
+    } else if (hoodEncoderPosition < hoodAngle ) {
+      pivotDown();
+    } else {
+      pivotStop();
+    }
   }
 
   public void pivotUp() {
