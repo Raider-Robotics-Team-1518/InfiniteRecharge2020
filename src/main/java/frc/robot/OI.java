@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 public class OI extends SubsystemBase {
 
@@ -41,6 +42,7 @@ public class OI extends SubsystemBase {
   public final JoystickButton extendClawButton;
   public final JoystickButton stage2button;
   public final JoystickButton stage3button;
+  public final JoystickButton resetGyroButton;
   // public final JoystickButton climbUpButton;
   // public final JoystickButton climbDownButton;
 
@@ -95,6 +97,10 @@ public class OI extends SubsystemBase {
     extendClawButton = new JoystickButton(m_controller, 7);
     extendClawButton.whenPressed(() ->
     Robot.m_climb.extendClaw()).whenReleased(() -> Robot.m_climb.climbStop());
+
+    resetGyroButton = new JoystickButton(m_stick, 12);
+    resetGyroButton.whenPressed(() -> {Robot.m_driveTrain.rioGyro.reset();});
+
   }
 
   public void get() {
@@ -115,7 +121,14 @@ public class OI extends SubsystemBase {
       Robot.m_turret.stopTurret();
     }
 
-    Robot.m_turret.turretElevate.set(m_controller.getY(Hand.kLeft) * 0.5);
+    double hoodAdjust = m_controller.getY(Hand.kLeft);
+    if (hoodAdjust > 0.2) {
+      Robot.m_turret.pivotUp();
+    } else if (hoodAdjust < -0.2) {
+      Robot.m_turret.pivotDown();
+    }
+    else {Robot.m_turret.pivotStop();}
+    // Robot.m_turret.turretElevate.set(m_controller.getY(Hand.kLeft) * 0.5);
 
     // Robot.m_turret.turretPivot.set(m_controller.getRawAxis(2));
 

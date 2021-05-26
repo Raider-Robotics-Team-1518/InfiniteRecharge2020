@@ -28,14 +28,14 @@ public class Turret extends SubsystemBase {
   public CANSparkMax turretElevate = new CANSparkMax(13, MotorType.kBrushless);
   public CANEncoder hoodEncoder = turretElevate.getEncoder();
   private final double kMinPivotPower = .1;
-  private final double kMaxElevatePower = .5;
+  private final double kMaxElevatePower = .25;
   private final Double minHorizontalAngle = 1.5;
   private final double kMaxTurretPower = .5;
   private static DigitalInput turretMaxLeftSwitch = new DigitalInput(2);
   private static DigitalInput turretMaxRightSwitch = new DigitalInput(1);
   private double hoodEncoderPosition = 0;
-  private double hoodEncoderMinPosition = -1;  // assume same as hoodEncoderPosition at robot init
-  private double hoodEncoderMaxPosition = -25;
+  private double hoodEncoderMinPosition = -25;  // assume same as hoodEncoderPosition at robot init
+  private double hoodEncoderMaxPosition = -0.25;
 
   // OUTER PORT is 8 ft. 2¼ in. (~249 cm)
   private static final double targetHeight = 98.25; // Inches
@@ -90,11 +90,15 @@ public class Turret extends SubsystemBase {
 
   public boolean hoodIsAtMaxElevation() {
     hoodEncoderPosition = hoodEncoder.getPosition();
+    Double foo = (Double)hoodEncoderPosition;
+    System.out.println(foo.toString());
     return hoodEncoderPosition <= hoodEncoderMaxPosition;
   }
 
   public boolean hoodIsAtMinElevation() {
     hoodEncoderPosition = hoodEncoder.getPosition();
+    Double foo = (Double)hoodEncoderPosition;
+    System.out.println(foo.toString());
     return hoodEncoderPosition >= hoodEncoderMinPosition;
   }
 
@@ -188,16 +192,17 @@ public class Turret extends SubsystemBase {
   public void pivotToHoodAngle(Double hoodAngle) {
     Double hoodEncoderPosition = hoodEncoder.getPosition();
     if (hoodEncoderPosition > hoodAngle) {
-      pivotUp();
-    } else if (hoodEncoderPosition < hoodAngle ) {
       pivotDown();
+    } else if (hoodEncoderPosition < hoodAngle ) {
+      pivotUp();
     } else {
       pivotStop();
     }
   }
 
   public void pivotUp() {
-    if (!hoodIsAtMaxElevation()) {
+    // if (!hoodIsAtMaxElevation()) {
+    if(hoodEncoder.getPosition() <= hoodEncoderMaxPosition){
       turretElevate.set(kMaxElevatePower);
     } else {
       pivotStop();
@@ -205,7 +210,8 @@ public class Turret extends SubsystemBase {
   }
 
   public void pivotDown() {
-    if (!hoodIsAtMinElevation()) {
+    // if (!hoodIsAtMinElevation()) {
+    if(hoodEncoder.getPosition() >= hoodEncoderMinPosition){
       turretElevate.set(-kMaxElevatePower);
     } else {
       pivotStop();

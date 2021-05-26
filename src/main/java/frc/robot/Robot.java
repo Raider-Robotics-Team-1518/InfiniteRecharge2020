@@ -104,6 +104,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     alliance = DriverStation.getInstance().getAlliance();
+    m_turret.init();
     m_led.disableRainbow();
     setLights();
     m_driveTrain.resetAllEncoders();

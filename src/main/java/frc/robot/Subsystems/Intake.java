@@ -19,6 +19,7 @@ public class Intake extends SubsystemBase {
 
   public static WPI_TalonSRX pivotMotor = new WPI_TalonSRX(9);
   public static CANSparkMax intakeMotor = new CANSparkMax(15, MotorType.kBrushless);
+  public static CANSparkMax intake2Motor = new CANSparkMax(12, MotorType.kBrushless);
   private final double kMaxPivotMotorPower = 0.5;
   private static DigitalInput intakeFullyExtendedSwitch;
   private static DigitalInput intakeFullyRetractedSwitch;
@@ -29,6 +30,7 @@ public class Intake extends SubsystemBase {
   public Intake() {
     intakeFullyExtendedSwitch = new DigitalInput(3);
     intakeFullyRetractedSwitch = new DigitalInput(4);
+    intake2Motor.setInverted(true);
   }
 
   @Override
@@ -62,13 +64,16 @@ public class Intake extends SubsystemBase {
 
   public void intakeOn() {
     intakeMotor.set(0.9);
+    intake2Motor.set(0.9);
   }
 
   public void intakeOff() {
     intakeMotor.set(0);
+    intake2Motor.set(0);
   }
 
   public void intakeRevers(){
     intakeMotor.set(-0.9);
+    intake2Motor.set(-0.9);
   }
 }
