@@ -26,7 +26,7 @@ import frc.robot.subsystems.Turret;
 import frc.robot.commands.Auto_DriveAndShoot;
 import frc.robot.commands.Auto_DriveOffLine;
 import frc.robot.subsystems.Intake;
-// import frc.robot.OI;
+import frc.robot.OI;
 // import frc.robot.commands.AutonomousTest;
 import frc.robot.components.LED;
 // import edu.wpi.first.wpilibj.Relay;
@@ -144,7 +144,6 @@ public class Robot extends TimedRobot {
     // For testing the turret ring (lazy susan)
     // m_turret.turretPivot.set(m_oi.m_stick.getThrottle());
 
-    // m_aTurret.execute(); we found a loophole to check if this was working
 
 
   }

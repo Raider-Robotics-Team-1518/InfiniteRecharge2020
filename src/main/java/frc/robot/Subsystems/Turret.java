@@ -40,8 +40,8 @@ public class Turret extends SubsystemBase {
   // OUTER PORT is 8 ft. 2¼ in. (~249 cm)
   private static final double targetHeight = 98.25; // Inches
   private static final double optimalDistance = 84; // Inches
-  private static final double cameraHeight = 30.0;  // Inches
-  private static final double cameraMountingAngle = 23.0; // degrees
+  private static final double cameraHeight = 29.0;  // Inches
+  private static final double cameraMountingAngle = 18; // degrees
 
   // Turret Firing System
   public static WPI_TalonFX thrower1 = new WPI_TalonFX(5);
@@ -81,11 +81,11 @@ public class Turret extends SubsystemBase {
   }
 
   public boolean isAtLeftLimit() {
-    return turretMaxLeftSwitch.get();
+    return !turretMaxLeftSwitch.get();
   }
 
   public boolean isAtRightLimit() {
-    return turretMaxRightSwitch.get();
+    return !turretMaxRightSwitch.get();
   }
 
   public boolean hoodIsAtMaxElevation() {
@@ -104,17 +104,17 @@ public class Turret extends SubsystemBase {
 
   public void lookLeft(){
     if (isAtLeftLimit()) {
-      turretPivot.set(kMaxTurretPower);
-    } else {
       stopTurret();
+    } else {
+      turretPivot.set(kMaxTurretPower);
     }
   }
 
   public void lookRight(){
     if (isAtRightLimit()) {
-      turretPivot.set(-kMaxTurretPower);
-    } else {
       stopTurret();
+    } else {
+      turretPivot.set(-kMaxTurretPower);
     }
   }
 
@@ -146,12 +146,14 @@ public class Turret extends SubsystemBase {
   public void lockOnTarget() {
     if (isInTrackingMode) {
       Double horizontalOffset = lime.getTargetOffsetHorizontal();
-      Double verticalOffset = lime.getTargetOffsetVertical();
+      Double limeYAngle = (double)lime.getTargetOffsetVertical();
+      Double verticalOffset = Math.round(limeYAngle * 10.0)/10.0;
       // see https://docs.limelightvision.io/en/latest/cs_estimating_distance.html
       Double targetDistance = (targetHeight - cameraHeight) / Math.tan((cameraMountingAngle + verticalOffset) * Math.PI / 180); // in inches
       Double hoodEncoderPosition = hoodEncoder.getPosition();
       int shooterSpeed = -thrower2.getSelectedSensorVelocity();
 
+      SmartDashboard.putBoolean("Target/isInTrackingMode", isInTrackingMode);
       SmartDashboard.putNumber("Target/TargetDistance", (double)Math.round(targetDistance * 100d) / 100d);
       SmartDashboard.putNumber("Target/HorizontalOffset: ", horizontalOffset);
       SmartDashboard.putNumber("Target/MinHorizontalAngle: ", minHorizontalAngle);
@@ -171,6 +173,9 @@ public class Turret extends SubsystemBase {
       } else if (newZ > 0 && !isAtRightLimit()) {
         turretPivot.set(-newZ);
       }
+      SmartDashboard.putNumber("Target/newZ", newZ);
+      SmartDashboard.putBoolean("Target/isAtLeftLimit", isAtLeftLimit());
+      SmartDashboard.putBoolean("Target/isAtRightLimit", isAtRightLimit());
 // System.out.println(hoodEncoderPosition.toString());
       // ADD CODE HERE TO LOOKUP HOOD ANGLE BASED ON DISTANCE
       Double hoodAngle = 0.0;
@@ -186,6 +191,11 @@ public class Turret extends SubsystemBase {
         hoodAngle = -23.476;
       }
       pivotToHoodAngle(hoodAngle);
+    } else {
+      SmartDashboard.putBoolean("Target/isInTrackingMode", isInTrackingMode);
+      SmartDashboard.putNumber("Target/newZ", 0);
+      SmartDashboard.putBoolean("Target/isAtLeftLimit", isAtLeftLimit());
+      SmartDashboard.putBoolean("Target/isAtRightLimit", isAtRightLimit());
     }
   }
 
