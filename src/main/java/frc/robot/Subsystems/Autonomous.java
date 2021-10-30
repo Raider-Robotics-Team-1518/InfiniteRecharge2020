@@ -116,15 +116,16 @@ public class Autonomous extends SubsystemBase {
 		a_drive.resetAllEncoders();
 		startPosition = a_drive.getFrontAverage();
 		//double targetPosition = (distance / circumferenceInInches * pulsesPerRotation);
+		System.out.println(hasDrivenFarEnough(startPosition, distance));
 		while (hasDrivenFarEnough(startPosition, distance) == false) {
 			double drift = readGyro() / 100;
 			drift = Math.min(drift, 0.1);
 			if (distance > 0) {
-				// a_drive.drive(0, AUTO_MAX_X, -drift);  // FORWARD
-			}
-			
-			else {
-				// a_drive.drive(0, -AUTO_MAX_X, -drift);  // REVERSE
+				// a_drive.drive();
+				a_drive.driveByStick(0, AUTO_MAX_X, -drift);  // FORWARD
+			} else {
+				// a_drive.drive();
+				a_drive.driveByStick(0, -AUTO_MAX_X, -drift);  // REVERSE
 			}
 			
 			//System.out.println("Gyro Heading: " + drift);
