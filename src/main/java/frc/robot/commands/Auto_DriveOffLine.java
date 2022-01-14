@@ -14,7 +14,7 @@ public class Auto_DriveOffLine extends CommandBase {
   /**
    * Creates a new Auto_DriveOffLine.
    */
-  private static final double distanceToDrive = 6; // inches
+  private static final double distanceToDrive = 32; // inches
   private static Autonomous auto;
   private static boolean isDone = false;
 
@@ -27,12 +27,15 @@ public class Auto_DriveOffLine extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    isDone = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    System.out.println("--> Auto_DriveOffLine::execute()");
     if (!isDone) {
+      System.out.println("--> Auto_DriveOffLine::should be driving");
       auto.drivebackward(distanceToDrive);
       end(false);
     }

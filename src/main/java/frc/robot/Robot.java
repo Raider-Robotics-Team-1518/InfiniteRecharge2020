@@ -111,6 +111,7 @@ public class Robot extends TimedRobot {
     m_driveTrain.resetGyro();
     m_autoMode = m_chooser.getSelected();
     if (m_autoMode != null) {
+      
       m_autoMode.execute();
     }
   }

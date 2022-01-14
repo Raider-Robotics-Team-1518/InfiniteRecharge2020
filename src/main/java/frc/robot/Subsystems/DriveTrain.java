@@ -126,6 +126,10 @@ public class DriveTrain extends SubsystemBase {
     m_drive.drivePolar(Math.pow(stickPower, 3) * stickPowerFactor, driveAngle, Math.pow(m_stick.getZ(),3) * rotationPowerFactor);
    }
 
+   public void driveByStick(final double liveX, final double liveY, final double liveZ) {
+    m_drive.driveCartesian(liveX, liveY, liveZ);
+}
+
   public void updateEncoders(){
     leftFrontEncoder = leftFront.getSelectedSensorPosition();
     leftRearEncoder = leftRear.getSelectedSensorPosition();
